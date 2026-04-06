@@ -207,9 +207,9 @@
       opacity: 0.11;
     }
 
-    @media (min-width: 1100px) {
+    @media (min-width: 1280px) {
       .category-row {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 1.5rem;
       }
 
@@ -219,7 +219,7 @@
       }
     }
 
-    @media (max-width: 1099px) and (min-width: 601px) {
+    @media (max-width: 1279px) and (min-width: 601px) {
       .category-row {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -833,7 +833,7 @@
         </div>
         <div>
           <h1>Analytics dashboard</h1>
-          <p>Shopify · Paid media · Email · B2B · SEO/SEM — performance overview</p>
+          <p>Shopify · Google Ads · Meta · Email · B2B · SEO/SEM — performance overview</p>
         </div>
       </div>
     </header>
@@ -849,8 +849,8 @@
               <stop offset="55%" stop-color="#1793d1" />
               <stop offset="100%" stop-color="#1278ad" stop-opacity="0.85" />
             </linearGradient>
-            <marker id="categoryBridgeArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto" markerUnits="userSpaceOnUse">
-              <path d="M 0 1.5 L 8.5 5 L 0 8.5 Z" fill="#1793d1" />
+            <marker id="categoryBridgeArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse">
+              <path d="M 0 1.25 L 9 5 L 0 8.75 Z" fill="#1793d1" />
             </marker>
           </defs>
           <path class="category-bridge-path-soft" d=""></path>
@@ -863,10 +863,15 @@
             <h2>Shopify Analytics</h2>
             <p>Conversion &amp; revenue</p>
           </button>
-          <button type="button" class="category-card" data-category="paid" aria-pressed="false">
-            <span class="icon" aria-hidden="true">▲</span>
-            <h2>Paid Ads</h2>
-            <p>ROAS &amp; spend efficiency</p>
+          <button type="button" class="category-card" data-category="paidGoogle" aria-pressed="false">
+            <span class="icon" aria-hidden="true">G</span>
+            <h2>Google Ads</h2>
+            <p>Search, PMax &amp; YouTube</p>
+          </button>
+          <button type="button" class="category-card" data-category="paidMeta" aria-pressed="false">
+            <span class="icon" aria-hidden="true">∞</span>
+            <h2>Meta Ads</h2>
+            <p>Feed, Reels &amp; attribution</p>
           </button>
           <button type="button" class="category-card" data-category="email" aria-pressed="false">
             <span class="icon" aria-hidden="true">✉</span>
@@ -1060,25 +1065,12 @@
       title: "Shopify Analytics",
       kpis: [
         { key: "revenue", label: "Revenue", format: "currency", hint: "Net sales in the window.", icon: "dollar-sign" },
-        { key: "orders", label: "Orders", format: "int", hint: "Paid orders only.", icon: "shopping-cart" },
+        { key: "sessions", label: "Sessions", format: "int", hint: "Storefront sessions in the window.", icon: "users" },
         { key: "cvr", label: "Conversion rate", format: "percent", hint: "Orders ÷ sessions.", icon: "crosshair" },
         { key: "aov", label: "Average order value", format: "currency", hint: "Revenue ÷ orders.", icon: "tag" },
         { key: "returning", label: "Returning customer rate", format: "percent", hint: "Orders from repeat customers.", icon: "repeat-2" },
       ],
       subsections: [
-        {
-          title: "Sales Performance",
-          description: "Gross → net breakdown.",
-          metrics: [
-            { label: "Gross sales", key: "gross", icon: "dollar-sign" },
-            { label: "Net sales", key: "net", icon: "wallet" },
-            { label: "Discounts", key: "discounts", icon: "tag" },
-            { label: "Tax collected", key: "tax", icon: "landmark" },
-            { label: "Shipping revenue", key: "shipCol", icon: "package" },
-            { label: "Refund amount", key: "refund", icon: "undo-2" },
-            { label: "Units sold", key: "units", icon: "layers" },
-          ],
-        },
         {
           title: "Conversion Funnel",
           description: "Session-to-purchase funnel.",
@@ -1087,31 +1079,32 @@
             { label: "Product views", key: "pviews", icon: "eye" },
             { label: "Bounce rate", key: "bounce", icon: "log-out" },
             { label: "Add to cart rate", key: "atc", icon: "shopping-cart" },
-            { label: "PDP → cart rate", key: "pdpToCart", icon: "arrow-right-left" },
             { label: "Checkout initiation", key: "chkStart", icon: "file-text" },
             { label: "Checkout completion rate", key: "chkDone", icon: "check-circle" },
           ],
         },
         {
           title: "Customer Behavior",
-          description: "New vs. returning buyer mix.",
+          description: "New vs. returning buyers.",
           metrics: [
             { label: "New customers", key: "newC", icon: "user-plus" },
             { label: "Returning customers", key: "retC", icon: "repeat-2" },
-            { label: "Repeat purchase rate", key: "repeat", icon: "arrow-right-left" },
-            { label: "Returning sessions (est.)", key: "sessRet", icon: "bar-chart-2" },
-            { label: "Blended LTV snapshot", key: "ltv", icon: "gem" },
           ],
         },
         {
-          title: "Product Performance",
-          description: "Top products by revenue.",
+          title: "Top 10 products by sales",
+          description: "Ranked by sales in this period.",
           detailTable: "shopifyProducts",
+        },
+        {
+          title: "Top 10 sales by cities",
+          description: "Ranked by sales in this period.",
+          detailTable: "shopifyCities",
         },
       ],
       charts: [
         { key: "revenue", label: "Revenue over time", subtitle: "Daily net sales." },
-        { key: "orders", label: "Orders over time", subtitle: "By order date." },
+        { key: "sessions", label: "Sessions over time", subtitle: "Daily storefront sessions." },
         { key: "cvr", label: "Conversion rate over time", subtitle: "Orders ÷ sessions." },
         { key: "aov", label: "AOV over time", subtitle: "Revenue ÷ orders." },
         { key: "returning", label: "Returning customer share over time", subtitle: "Repeat customer orders." },
@@ -1172,56 +1165,102 @@
         { key: "organicCtr", label: "Organic CTR over time", subtitle: "Daily organic CTR from GSC." },
       ],
     },
-    paid: {
-      title: "Paid Ads",
+    paidGoogle: {
+      title: "Google Ads",
       kpis: [
-        { key: "spend", label: "Ad spend", format: "currency", hint: "Total platform spend.", icon: "credit-card" },
-        { key: "paidRev", label: "Revenue from paid", format: "currency", hint: "Revenue attributed to paid.", icon: "trending-up" },
-        { key: "roas", label: "ROAS", format: "decimal", hint: "Attributed revenue ÷ ad spend.", icon: "zap" },
-        { key: "cpp", label: "Cost per purchase", format: "currency", hint: "Spend ÷ attributed purchases.", icon: "tag" },
-        { key: "ctr", label: "CTR", format: "percent", hint: "Clicks ÷ impressions.", icon: "pointer" },
+        { key: "spend", label: "Spend", format: "currency", hint: "Google Ads cost in account currency.", icon: "credit-card" },
+        { key: "paidRev", label: "Conv. value", format: "currency", hint: "Attributed conversion value.", icon: "trending-up" },
+        { key: "roas", label: "ROAS", format: "decimal", hint: "Conv. value ÷ cost.", icon: "zap" },
+        { key: "cpc", label: "Avg. CPC", format: "currency", hint: "Cost ÷ clicks.", icon: "wallet" },
+        { key: "conversions", label: "Conversions", format: "int", hint: "Account conversion actions counted.", icon: "check-circle" },
       ],
       subsections: [
         {
-          title: "Campaign Performance",
-          description: "Aggregated roll-up of active campaigns; drill into platforms for placement-level detail.",
+          title: "Channel mix",
+          description: "Spend split across core Google Ads surfaces.",
           metrics: [
-            { label: "Campaign spend", key: "cSpend", icon: "credit-card" },
-            { label: "Campaign revenue", key: "cRev", icon: "trending-up" },
-            { label: "Campaign ROAS", key: "cRoas", icon: "zap" },
-            { label: "Conversions (purchases)", key: "cConv", icon: "check-circle" },
-            { label: "Impressions", key: "impr", icon: "eye" },
-            { label: "Clicks", key: "clicks", icon: "pointer" },
-            { label: "CPC (blended)", key: "cpc", icon: "wallet" },
+            { label: "Search", key: "pgSearchSpend", icon: "search" },
+            { label: "Performance Max", key: "pgPmaxSpend", icon: "zap" },
+            { label: "YouTube", key: "pgYoutubeSpend", icon: "eye" },
+            { label: "Demand Gen", key: "pgDemandGenSpend", icon: "layers" },
           ],
         },
         {
-          title: "Traffic Quality",
-          description: "How paid traffic behaves once it lands—engagement and downstream conversion.",
+          title: "Search & auctions",
+          description: "Visibility and efficiency signals.",
           metrics: [
-            { label: "Sessions from paid", key: "paidSess", icon: "users" },
-            { label: "New visitor share", key: "newVisitShare", icon: "user-plus" },
-            { label: "Engagement rate", key: "eng", icon: "activity" },
-            { label: "Paid traffic CVR", key: "paidCvr", icon: "crosshair" },
+            { label: "Search impr. share (avg.)", key: "googleSearchIS", icon: "bar-chart-2" },
+            { label: "Avg. CPC", key: "pgCpcAvg", icon: "wallet" },
+            { label: "CTR (account)", key: "pgCtrRollup", icon: "pointer" },
+            { label: "Conv. rate (click)", key: "pgConvRate", icon: "crosshair" },
           ],
         },
         {
-          title: "Creative / Ad Performance",
-          description: "Creative-level winners for prospecting and retargeting mixes.",
-          detailTable: "paidCreatives",
+          title: "Top campaigns",
+          description: "Highest-spend campaigns in the window.",
+          detailTable: "googleCampaigns",
         },
         {
-          title: "Platform Breakdown",
-          description: "Spend and return split across Google, Meta, and other paid channels.",
-          detailTable: "paidPlatforms",
+          title: "Responsive & asset groups",
+          description: "RSA / PMax asset sets by performance.",
+          detailTable: "googleAssetGroups",
         },
       ],
       charts: [
-        { key: "spend", label: "Spend over time", subtitle: "Daily spend as reported by each ad platform." },
-        { key: "paidRev", label: "Paid revenue over time", subtitle: "Attributed revenue tied to paid touchpoints." },
-        { key: "roas", label: "ROAS over time", subtitle: "Revenue ÷ spend per time bucket." },
-        { key: "cpp", label: "Cost per purchase over time", subtitle: "Spend ÷ attributed purchases." },
-        { key: "ctr", label: "CTR over time", subtitle: "Blended CTR across active ads." },
+        { key: "spend", label: "Spend over time", subtitle: "Daily Google Ads cost." },
+        { key: "paidRev", label: "Conv. value over time", subtitle: "Attributed value by day." },
+        { key: "roas", label: "ROAS over time", subtitle: "Value ÷ cost." },
+        { key: "cpc", label: "Avg. CPC over time", subtitle: "Blended cost per click." },
+        { key: "conversions", label: "Conversions over time", subtitle: "Conversion actions counted." },
+      ],
+    },
+    paidMeta: {
+      title: "Meta Ads",
+      kpis: [
+        { key: "spend", label: "Spend", format: "currency", hint: "Meta Ads account spend.", icon: "credit-card" },
+        { key: "paidRev", label: "Purchase value", format: "currency", hint: "Attributed purchase revenue.", icon: "trending-up" },
+        { key: "roas", label: "ROAS", format: "decimal", hint: "Purchase value ÷ spend.", icon: "zap" },
+        { key: "cpp", label: "Cost per purchase", format: "currency", hint: "Spend ÷ purchases.", icon: "tag" },
+        { key: "ctr", label: "CTR (all)", format: "percent", hint: "Clicks ÷ impressions.", icon: "pointer" },
+      ],
+      subsections: [
+        {
+          title: "Delivery",
+          description: "Reach and volume across placements.",
+          metrics: [
+            { label: "Reach", key: "pmReach", icon: "users" },
+            { label: "Impressions", key: "pmImpr", icon: "eye" },
+            { label: "Link clicks", key: "pmLinkClicks", icon: "pointer" },
+            { label: "Frequency (avg.)", key: "pmFreq", icon: "repeat-2" },
+          ],
+        },
+        {
+          title: "Engagement & results",
+          description: "Efficiency beyond the click.",
+          metrics: [
+            { label: "Engagement rate", key: "pmEngRate", icon: "activity" },
+            { label: "Cost per result", key: "pmCostPerResult", icon: "wallet" },
+            { label: "ThruPlays (est.)", key: "pmThruplay", icon: "eye" },
+            { label: "Purchases", key: "pmPurchases", icon: "shopping-cart" },
+          ],
+        },
+        {
+          title: "Creative performance",
+          description: "Ads ranked by attributed revenue.",
+          detailTable: "metaCreatives",
+        },
+        {
+          title: "Placements",
+          description: "Spend and return by surface.",
+          detailTable: "metaPlacements",
+        },
+      ],
+      charts: [
+        { key: "spend", label: "Spend over time", subtitle: "Daily Meta Ads cost." },
+        { key: "paidRev", label: "Purchase value over time", subtitle: "Attributed revenue by day." },
+        { key: "roas", label: "ROAS over time", subtitle: "Purchase value ÷ spend." },
+        { key: "cpp", label: "Cost per purchase over time", subtitle: "Spend ÷ purchases." },
+        { key: "ctr", label: "CTR over time", subtitle: "All placements blended." },
       ],
     },
     email: {
@@ -1371,6 +1410,30 @@
     });
     const dailyCtr = makeDailySeries(start, end, seed + "ctr", 0.014, 0.002);
 
+    const dailySpendGoogle = makeDailySeries(start, end, seed + "dsg", 1180, 95);
+    const dailyPaidRevGoogle = makeDailySeries(start, end, seed + "dprg", 5050, 410);
+    const dailyImprGoogle = makeDailySeries(start, end, seed + "dimg", 182000, 11500);
+    const dailyClicksGoogle = makeDailySeries(start, end, seed + "dcg", 8100, 600);
+    const dailyConvGoogle = makeDailySeries(start, end, seed + "dvng", 94, 7).map((v) => Math.round(v));
+    const dailyRoasGoogle = dailyPaidRevGoogle.map((r, i) => (dailySpendGoogle[i] > 0 ? r / dailySpendGoogle[i] : 0));
+    const dailyCpcGoogle = dailySpendGoogle.map((s, i) => s / Math.max(1, dailyClicksGoogle[i]));
+    const dailyCtrGoogle = dailyClicksGoogle.map((c, i) => c / Math.max(1, dailyImprGoogle[i]));
+
+    const dailySpendMeta = makeDailySeries(start, end, seed + "dsm", 920, 78);
+    const dailyPaidRevMeta = makeDailySeries(start, end, seed + "dprm", 3850, 320);
+    const dailyImprMeta = makeDailySeries(start, end, seed + "dim", 920000, 62000);
+    const dailyClicksMeta = makeDailySeries(start, end, seed + "dcm", 12400, 980);
+    const dailyPurchMeta = makeDailySeries(start, end, seed + "dpm", 31, 2.5).map((v) => Math.round(v));
+    const dailyCppMeta = dailySpendMeta.map((s, i) => s / Math.max(1, dailyPurchMeta[i]));
+    const dailyCtrMeta = dailyClicksMeta.map((c, i) => c / Math.max(1, dailyImprMeta[i]));
+    const dailyRoasMeta = dailyPaidRevMeta.map((r, i) => (dailySpendMeta[i] > 0 ? r / dailySpendMeta[i] : 0));
+    const dailyReachMeta = makeDailySeries(start, end, seed + "drm", 188000, 14000);
+    const dailyFreqMeta = makeDailySeries(start, end, seed + "dfm", 2.1, 0.14);
+    const dailyEngRateMeta = makeDailySeries(start, end, seed + "dem", 0.041, 0.004);
+
+    const sumSpendG = sum(dailySpendGoogle);
+    const sumSpendM = sum(dailySpendMeta);
+
     const dailyEmRev = makeDailySeries(start, end, seed + "er", 3100, 220);
     const dailyEmOrders = makeDailySeries(start, end, seed + "eo", 22, 2).map((v) => Math.round(v));
     const dailyOpen = makeDailySeries(start, end, seed + "op", 0.38, 0.03);
@@ -1408,7 +1471,6 @@
       pviews: totalOrders * 118,
       bounce: 0.38 + seededNoise(seed + "bz") * 0.08,
       atc: 0.092,
-      pdpToCart: 0.118,
       chkStart: 0.054,
       chkDone: avgCvr,
       newC: totalOrders * 0.62,
@@ -1470,22 +1532,48 @@
       srcEvents: 0.18,
       srcPartner: 0.15,
       pipelineRollup: sum(dailyPipeline),
+      pgSearchSpend: sumSpendG * 0.44,
+      pgPmaxSpend: sumSpendG * 0.38,
+      pgYoutubeSpend: sumSpendG * 0.12,
+      pgDemandGenSpend: sumSpendG * 0.06,
+      googleSearchIS: 0.72 + seededNoise(seed + "gIS") * 0.08,
+      pgCpcAvg: sum(dailyCpcGoogle) / Math.max(1, dailyCpcGoogle.length),
+      pgCtrRollup: sum(dailyCtrGoogle) / Math.max(1, dailyCtrGoogle.length),
+      pgConvRate: sum(dailyConvGoogle) / Math.max(1, sum(dailyClicksGoogle)),
+      pmReach: sum(dailyReachMeta),
+      pmImpr: sum(dailyImprMeta),
+      pmLinkClicks: sum(dailyClicksMeta),
+      pmFreq: sum(dailyFreqMeta) / Math.max(1, dailyFreqMeta.length),
+      pmEngRate: sum(dailyEngRateMeta) / Math.max(1, dailyEngRateMeta.length),
+      pmCostPerResult: sumSpendM / Math.max(1, sum(dailyPurchMeta) * 1.15),
+      pmThruplay: Math.round(sum(dailyImprMeta) * 0.0022),
+      pmPurchases: sum(dailyPurchMeta),
+      metaSpendRollup: sumSpendM,
     };
+
+    const dailySessions = dailyOrders.map((v) => Math.round(v * 42));
 
     const series = {
       shopify: {
         revenue: dailyRev,
-        orders: dailyOrders.map((v) => Math.round(v)),
+        sessions: dailySessions,
         cvr: dailyCvr,
         aov: dailyAov,
         returning: dailyRet,
       },
-      paid: {
-        spend: dailySpend,
-        paidRev: dailyPaidRev,
-        roas: dailyRoas,
-        cpp: dailyCpp,
-        ctr: dailyCtr,
+      paidGoogle: {
+        spend: dailySpendGoogle,
+        paidRev: dailyPaidRevGoogle,
+        roas: dailyRoasGoogle,
+        cpc: dailyCpcGoogle,
+        conversions: dailyConvGoogle.map((v) => Math.round(v)),
+      },
+      paidMeta: {
+        spend: dailySpendMeta,
+        paidRev: dailyPaidRevMeta,
+        roas: dailyRoasMeta,
+        cpp: dailyCppMeta,
+        ctr: dailyCtrMeta,
       },
       email: {
         emRev: dailyEmRev,
@@ -1513,17 +1601,24 @@
     const kpis = {
       shopify: {
         revenue: totalRev,
-        orders: totalOrders,
+        sessions: Math.round(sum(dailySessions)),
         cvr: avgCvr,
         aov: avgAov,
         returning: avgRet,
       },
-      paid: {
-        spend: sum(dailySpend),
-        paidRev: sum(dailyPaidRev),
-        roas: sum(dailyPaidRev) / Math.max(1, sum(dailySpend)),
-        cpp: sum(dailyCpp) / dailyCpp.length,
-        ctr: sum(dailyCtr) / dailyCtr.length,
+      paidGoogle: {
+        spend: sumSpendG,
+        paidRev: sum(dailyPaidRevGoogle),
+        roas: sum(dailyPaidRevGoogle) / Math.max(1, sumSpendG),
+        cpc: sum(dailyCpcGoogle) / Math.max(1, dailyCpcGoogle.length),
+        conversions: Math.round(sum(dailyConvGoogle)),
+      },
+      paidMeta: {
+        spend: sumSpendM,
+        paidRev: sum(dailyPaidRevMeta),
+        roas: sum(dailyPaidRevMeta) / Math.max(1, sumSpendM),
+        cpp: sum(dailyCppMeta) / Math.max(1, dailyCppMeta.length),
+        ctr: sum(dailyCtrMeta) / Math.max(1, dailyCtrMeta.length),
       },
       email: {
         emRev: sum(dailyEmRev),
@@ -1600,43 +1695,100 @@
 
 
   function formatSubValue(key, val) {
-    const pctKeys = ["atc", "chkStart", "chkDone", "repeat", "eng", "paidCvr", "campOpen", "campClick", "segEng", "emCvr", "bounce", "pdpToCart", "newVisitShare", "delivRate", "brandedShare", "serpFeatures", "semIS", "nonBrandedShare", "b2bDisqual", "srcLinkedIn", "srcWeb", "srcEvents", "srcPartner"];
+    const pctKeys = ["atc", "chkStart", "chkDone", "repeat", "eng", "paidCvr", "campOpen", "campClick", "segEng", "emCvr", "bounce", "newVisitShare", "delivRate", "brandedShare", "serpFeatures", "semIS", "nonBrandedShare", "b2bDisqual", "srcLinkedIn", "srcWeb", "srcEvents", "srcPartner", "googleSearchIS", "pgCtrRollup", "pgConvRate", "pmEngRate"];
     if (pctKeys.includes(key)) return formatVal(val, "percent");
     if (key === "cRoas") return `${val.toFixed(2)}×`;
     if (key === "seoAvgPos") return val.toFixed(2);
-    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "asst", "retEm", "ltv", "cpc", "semSpend", "semCpc", "seoAssistedRev", "pipelineRollup"];
+    if (key === "pmFreq") return val.toFixed(2);
+    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "asst", "retEm", "ltv", "cpc", "semSpend", "semCpc", "seoAssistedRev", "pipelineRollup", "pgSearchSpend", "pgPmaxSpend", "pgYoutubeSpend", "pgDemandGenSpend", "pgCpcAvg", "pmCostPerResult"];
     if (currencyKeys.includes(key)) return formatVal(val, "currency");
-    const intKeys = ["units", "sessions", "pviews", "newC", "retC", "cConv", "paidSess", "campOrd", "subGrowth", "activeSub", "unsub", "impr", "clicks", "sessRet", "sends", "hardBounce", "seoClicks", "seoImpr", "semClicks", "semConv", "newOrganicUsers", "b2bFormFills", "mqlsRollup", "b2bSqls"];
+    const intKeys = ["units", "sessions", "pviews", "newC", "retC", "cConv", "paidSess", "campOrd", "subGrowth", "activeSub", "unsub", "impr", "clicks", "sessRet", "sends", "hardBounce", "seoClicks", "seoImpr", "semClicks", "semConv", "newOrganicUsers", "b2bFormFills", "mqlsRollup", "b2bSqls", "pmReach", "pmImpr", "pmLinkClicks", "pmThruplay", "pmPurchases"];
     if (intKeys.includes(key)) return formatVal(val, "int");
     return formatVal(val, "decimal");
   }
 
   function buildDetailTable(kind, seed, sub) {
     const names = {
-      shopifyProducts: ["Aero Shell Jacket", "Essential Merino Tee", "Trail Pack 28L", "City Sneaker — Ltd.", "Ultralight Rain Shell"],
+      shopifyProducts: [
+        "Aero Shell Jacket",
+        "Essential Merino Tee",
+        "Trail Pack 28L",
+        "City Sneaker — Ltd.",
+        "Ultralight Rain Shell",
+        "Merino Beanie",
+        "Performance Socks (3-pk)",
+        "Insulated Bottle 750ml",
+        "Compact Daypack 20L",
+        "Tech Fleece Hoodie",
+      ],
       paidCreatives: ["Carousel — Spring drop", "UGC video — testimonial", "Static — promo stack", "Story — social proof", "Reels — unboxing"],
       emailCampaigns: ["Spring launch blast", "VIP early access", "Back-in-stock drops", "Newsletter #42", "Sunset collection tease"],
     };
 
     if (kind === "shopifyProducts") {
       const rows = names.shopifyProducts.map((name, i) => {
-        const rev = sub.gross * (0.14 - i * 0.022) * (0.85 + seededNoise(seed + "R" + i));
-        const units = Math.max(12, Math.round(sub.units * (0.09 - i * 0.014)));
+        const rev = sub.gross * (0.17 - i * 0.013) * (0.78 + seededNoise(seed + "R" + i) * 0.4);
+        const units = Math.max(8, Math.round(sub.units * (0.095 - i * 0.008)));
         const cvr = 0.018 + seededNoise(seed + "V" + i) * 0.05;
-        const sess = Math.round(sub.sessions * (0.055 - i * 0.006));
+        const sess = Math.round(sub.sessions * (0.052 - i * 0.0045));
         const flag = cvr < 0.028 && sess > sub.sessions * 0.04 ? "High traffic · low CVR" : i < 2 ? "Balanced" : "Niche / long tail";
         return { name, rev, units, cvr, sess, flag };
       });
+      rows.sort((a, b) => b.rev - a.rev);
       return {
         columns: [
           { key: "name", label: "Product" },
-          { key: "rev", label: "Revenue", num: true },
-          { key: "units", label: "Units", num: true },
+          { key: "rev", label: "Sales", num: true, fmt: "currency" },
+          { key: "units", label: "Units", num: true, fmt: "int" },
           { key: "cvr", label: "CVR", num: true, fmt: "percent" },
-          { key: "sess", label: "Sessions", num: true },
+          { key: "sess", label: "Sessions", num: true, fmt: "int" },
           { key: "flag", label: "Note" },
         ],
-        rows,
+        rows: rows.slice(0, 10),
+      };
+    }
+
+    if (kind === "shopifyCities") {
+      const cities = [
+        "Toronto, ON",
+        "Vancouver, BC",
+        "Montreal, QC",
+        "Calgary, AB",
+        "New York, NY",
+        "Los Angeles, CA",
+        "Chicago, IL",
+        "Seattle, WA",
+        "Boston, MA",
+        "Denver, CO",
+      ];
+      const cityRows = cities.map(function (city, i) {
+        const sales = sub.net * (0.13 - i * 0.0085) * (0.8 + seededNoise(seed + "cty" + i) * 0.38);
+        const orders = Math.max(5, Math.round(sub.units * 0.035 * (0.14 - i * 0.009)));
+        return { city: city, sales: sales, orders: orders };
+      });
+      cityRows.sort(function (a, b) {
+        return b.sales - a.sales;
+      });
+      const top = cityRows.slice(0, 10);
+      const totalSales = top.reduce(function (s, r) {
+        return s + r.sales;
+      }, 0);
+      const rows = top.map(function (r) {
+        return {
+          city: r.city,
+          sales: r.sales,
+          orders: r.orders,
+          share: totalSales > 0 ? r.sales / totalSales : 0,
+        };
+      });
+      return {
+        columns: [
+          { key: "city", label: "City" },
+          { key: "sales", label: "Sales", num: true, fmt: "currency" },
+          { key: "orders", label: "Orders", num: true, fmt: "int" },
+          { key: "share", label: "Share of sales", num: true, fmt: "percent" },
+        ],
+        rows: rows,
       };
     }
 
@@ -1676,6 +1828,81 @@
           { key: "share", label: "Share of spend", num: true, fmt: "percent" },
           { key: "rev", label: "Attributed rev.", num: true, fmt: "currency" },
           { key: "roas", label: "ROAS", num: true, fmt: "roas" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "googleCampaigns") {
+      const campNames = ["Brand Search — core", "PMax — retail", "Search — non-brand", "YouTube — in-stream", "Demand Gen — prospecting"];
+      const rows = campNames.map((name, i) => {
+        const spend = sub.pgSearchSpend * (0.32 - i * 0.045) * (0.92 + seededNoise(seed + "gc" + i));
+        const conv = Math.max(8, Math.round(sub.pgSearchSpend * 0.018 * (0.95 - i * 0.06)));
+        const rev = spend * (2.3 + seededNoise(seed + "grv" + i) * 0.5);
+        const roas = spend > 0 ? rev / spend : 0;
+        return { name, spend, conv, roas: Math.min(9, roas) };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Campaign" },
+          { key: "spend", label: "Spend", num: true, fmt: "currency" },
+          { key: "conv", label: "Conv.", num: true, fmt: "int" },
+          { key: "roas", label: "ROAS", num: true, fmt: "roas" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "googleAssetGroups") {
+      const names = ["RSA — primary set", "PMax listing group", "Video 15s cut", "Image — lifestyle", "Call ext."];
+      const rows = names.map((name, i) => {
+        const ctr = 0.035 + seededNoise(seed + "ga" + i) * 0.04;
+        const cvr = 0.028 + seededNoise(seed + "gv" + i) * 0.025;
+        const rev = sub.pgPmaxSpend * (0.2 - i * 0.03) * (0.9 + seededNoise(seed + "gav" + i));
+        return { name, ctr, cvr, rev };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Asset / group" },
+          { key: "ctr", label: "CTR", num: true, fmt: "percent" },
+          { key: "cvr", label: "CVR", num: true, fmt: "percent" },
+          { key: "rev", label: "Conv. value", num: true, fmt: "currency" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "metaCreatives") {
+      const names = ["Reels — UGC", "DPA — catalog", "Stories — promo", "Collection video", "Static — offer"];
+      const rows = names.map((name, i) => {
+        const ctr = 0.009 + seededNoise(seed + "mct" + i) * 0.018;
+        const cvr = 0.019 + seededNoise(seed + "mcv" + i) * 0.022;
+        const rev = sub.metaSpendRollup * (0.24 - i * 0.038) * (2.1 + seededNoise(seed + "mcr" + i) * 0.3);
+        return { name, ctr, cvr, rev };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Creative" },
+          { key: "ctr", label: "CTR", num: true, fmt: "percent" },
+          { key: "cvr", label: "CVR", num: true, fmt: "percent" },
+          { key: "rev", label: "Purchase value", num: true, fmt: "currency" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "metaPlacements") {
+      const places = ["Facebook Feed", "Instagram Feed", "Instagram Stories", "Facebook Reels", "Audience Network"];
+      const rows = places.map((name, i) => {
+        const spend = sub.metaSpendRollup * (0.28 - i * 0.04) * (0.92 + seededNoise(seed + "mpl" + i));
+        const rev = spend * (2.05 + seededNoise(seed + "mpr" + i) * 0.35);
+        return { name, spend, rev };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Placement" },
+          { key: "spend", label: "Spend", num: true, fmt: "currency" },
+          { key: "rev", label: "Purchase value", num: true, fmt: "currency" },
         ],
         rows,
       };
@@ -1820,7 +2047,7 @@
     const v = ctx.parsed.y;
     if (v == null) return "";
     const lab = ctx.dataset.label;
-    if (["revenue", "aov", "paidRev", "spend", "cpp", "emRev", "rpr", "organicRev", "pipeline", "cpl"].includes(chartKey)) {
+    if (["revenue", "aov", "paidRev", "spend", "cpp", "cpc", "emRev", "rpr", "organicRev", "pipeline", "cpl"].includes(chartKey)) {
       return `${lab}: ${formatVal(v, "currency")}`;
     }
     if (["cvr", "returning", "ctr", "open", "click", "organicCtr", "leadToOpp"].includes(chartKey)) {
@@ -1838,6 +2065,68 @@
     const cfg = CATEGORY_CONFIG[cat];
     const chartMeta = cfg.charts.find((c) => c.key === chartKey);
     if (!chartMeta) return;
+
+    if (cat === "shopify" && chartKey === "sessions") {
+      const sub = dash.cur.shopify.sub;
+      const totalSess = dash.cur.shopify.kpis.sessions;
+      let paid = Math.round(sub.paidSess);
+      if (paid > totalSess) paid = Math.max(0, Math.round(totalSess * 0.42));
+      const nonPaid = Math.max(0, totalSess - paid);
+      const kpiDef = cfg.kpis.find((k) => k.key === chartKey);
+
+      document.getElementById("kpiModalTitle").textContent = kpiDef ? kpiDef.label : "Sessions";
+      document.getElementById("kpiModalSubtitle").textContent = "Paid vs non-paid sessions in this window.";
+
+      if (modalChart) {
+        modalChart.destroy();
+        modalChart = null;
+      }
+      const canvas = document.getElementById("kpiModalCanvas");
+      canvas.setAttribute("aria-label", "Sessions breakdown: paid vs non-paid");
+      modalChart = new Chart(canvas.getContext("2d"), {
+        type: "pie",
+        data: {
+          labels: ["Paid traffic", "Non-paid"],
+          datasets: [
+            {
+              data: [paid, nonPaid],
+              backgroundColor: [PRIMARY, "rgba(100, 116, 139, 0.88)"],
+              borderColor: ["#ffffff", "#ffffff"],
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 14, padding: 16, font: { size: 12 } },
+            },
+            tooltip: {
+              callbacks: {
+                label(ctx) {
+                  const v = ctx.raw;
+                  const sum = ctx.dataset.data.reduce(function (a, b) {
+                    return a + b;
+                  }, 0);
+                  const pct = sum ? ((v / sum) * 100).toFixed(1) : "0";
+                  return " " + ctx.label + ": " + formatVal(v, "int") + " (" + pct + "%)";
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const backdrop = document.getElementById("kpiModalBackdrop");
+      backdrop.classList.add("open");
+      document.body.style.overflow = "hidden";
+      document.getElementById("kpiModalClose").focus();
+      return;
+    }
+
     const gran = "day";
     const labels = buildTimeLabels(dash.start, dash.end, gran);
     const sC = dash.cur[cat].series;
@@ -1855,6 +2144,7 @@
     if (modalChart) { modalChart.destroy(); modalChart = null; }
 
     const canvas = document.getElementById("kpiModalCanvas");
+    canvas.setAttribute("aria-label", "Metric trend chart");
     modalChart = new Chart(canvas.getContext("2d"), {
       type: "line",
       data: {
@@ -1980,7 +2270,8 @@
     const cur = {
       seosem: computeMetricsForCategory("seosem", start, end),
       shopify: computeMetricsForCategory("shopify", start, end),
-      paid: computeMetricsForCategory("paid", start, end),
+      paidGoogle: computeMetricsForCategory("paidGoogle", start, end),
+      paidMeta: computeMetricsForCategory("paidMeta", start, end),
       email: computeMetricsForCategory("email", start, end),
       b2b: computeMetricsForCategory("b2b", start, end),
     };
@@ -1988,7 +2279,8 @@
     const prev = {
       seosem: computeMetricsForCategory("seosem", cmp.start, cmp.end),
       shopify: computeMetricsForCategory("shopify", cmp.start, cmp.end),
-      paid: computeMetricsForCategory("paid", cmp.start, cmp.end),
+      paidGoogle: computeMetricsForCategory("paidGoogle", cmp.start, cmp.end),
+      paidMeta: computeMetricsForCategory("paidMeta", cmp.start, cmp.end),
       email: computeMetricsForCategory("email", cmp.start, cmp.end),
       b2b: computeMetricsForCategory("b2b", cmp.start, cmp.end),
     };
