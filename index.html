@@ -54,9 +54,10 @@
     }
 
     .app-shell {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 1.25rem 1.25rem 3rem;
+      width: 76%;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 1.25rem 0 3rem;
     }
 
     /* Top bar */
@@ -128,6 +129,21 @@
       display: block;
     }
 
+    button.brand-mark {
+      margin: 0;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    button.brand-mark:focus-visible {
+      outline: 2px solid rgba(42, 163, 224, 0.95);
+      outline-offset: 3px;
+    }
+
     .brand h1 {
       margin: 0;
       font-size: 1.35rem;
@@ -141,6 +157,58 @@
       font-size: 0.8rem;
       color: rgba(200, 215, 225, 0.92);
       line-height: 1.4;
+    }
+
+    .top-bar-tools {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .top-bar-tools label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(200, 215, 225, 0.75);
+      white-space: nowrap;
+    }
+
+    .date-range-select {
+      appearance: none;
+      min-width: min(280px, 72vw);
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #f4f7f9;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c8d6e0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    }
+
+    .date-range-select:hover,
+    .date-range-select:focus {
+      border-color: rgba(23, 147, 209, 0.55);
+      outline: none;
+    }
+
+    .date-range-select:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .date-range-select option {
+      color: #1a1718;
+      background: #fff;
     }
 
     /* Category cards */
@@ -816,19 +884,23 @@
   <div class="app-shell">
     <header class="top-bar">
       <div class="brand">
-        <div class="brand-mark">
+        <button type="button" class="brand-mark" id="brandLogoHome" aria-label="Use latest reporting period">
           <img
             src="assets/cec-logo.jpg"
-            alt="CEC CORP"
+            alt=""
             width="72"
             height="48"
             decoding="async"
           />
-        </div>
+        </button>
         <div>
           <h1>Analytics dashboard</h1>
           <p>Shopify · Google Ads · Meta · Email · B2B · SEO/SEM — performance overview</p>
         </div>
+      </div>
+      <div class="top-bar-tools">
+        <label for="dateRangeSelect"> period</label>
+        <select id="dateRangeSelect" class="date-range-select" aria-label="Reporting period"></select>
       </div>
     </header>
 
@@ -900,7 +972,7 @@
       <h4>Data &amp; definitions</h4>
       <p>
         Metrics shown here are <strong>demo data</strong> for layout and workflow. Production should connect to Shopify Admin API,
-        ad platform APIs (Google Ads, Meta), and your ESP (e.g. Klaviyo). Daily batch sync is the recommended V1 cadence. Deltas and trend overlays compare the current bi-weekly window to the <strong>last period</strong> (prior 14 days).
+        ad platform APIs (Google Ads, Meta), and your ESP (e.g. Klaviyo). Daily batch sync is the recommended V1 cadence. Deltas and trend overlays compare the <strong>selected reporting period</strong> to the <strong>prior period</strong> of the same length.
       </p>
 
     </footer>
@@ -934,6 +1006,8 @@
 
   const state = {
     category: "shopify",
+    /** @type {Record<string, { id: string, label: string, start: Date, end: Date }>} */
+    rangeById: {},
   };
 
 
@@ -947,13 +1021,90 @@
     return `${y}-${m}-${day}`;
   }
 
-  /** Fixed bi-weekly window: today back through the prior 13 days (14 days inclusive). */
-  function getDateRange() {
-    const end = new Date();
-    end.setHours(0, 0, 0, 0);
-    const start = new Date(end);
-    start.setDate(start.getDate() - 13);
-    return { start, end };
+  /**
+   * Half-month presets from (current month − 3) through the current month.
+   * Each option is either days 1–15 or 16–last; the active half clips end to today when still in progress.
+   */
+  function buildHalfMonthOptions(now) {
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+    const out = [];
+    const firstMonth = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    const cursor = new Date(firstMonth);
+
+    function pushHalf(y, m, half) {
+      const monthName = new Date(y, m, 1).toLocaleString("en-US", { month: "long" });
+      const lastDay = new Date(y, m + 1, 0).getDate();
+      let start;
+      let end;
+      let label;
+      if (half === 1) {
+        start = new Date(y, m, 1);
+        end = new Date(y, m, 15);
+        label = `${monthName} ${y} — 1st–15th`;
+      } else {
+        start = new Date(y, m, 16);
+        end = new Date(y, m, lastDay);
+        label = `${monthName} ${y} — 16th–${lastDay}`;
+      }
+      if (start > today) return;
+      let effEnd = end > today ? new Date(today) : end;
+      if (start > effEnd) return;
+      const id = `${y}-${String(m + 1).padStart(2, "0")}-h${half}`;
+      out.push({ id, label, start, end: effEnd });
+    }
+
+    while (
+      cursor.getFullYear() < today.getFullYear()
+      || (cursor.getFullYear() === today.getFullYear() && cursor.getMonth() <= today.getMonth())
+    ) {
+      const y = cursor.getFullYear();
+      const m = cursor.getMonth();
+      pushHalf(y, m, 1);
+      pushHalf(y, m, 2);
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return out.reverse();
+  }
+
+  function initDateRangeSelect() {
+    const sel = document.getElementById("dateRangeSelect");
+    if (!sel) return;
+    const opts = buildHalfMonthOptions(new Date());
+    state.rangeById = {};
+    opts.forEach(function (o) {
+      state.rangeById[o.id] = o;
+    });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const containing = opts.find(function (o) {
+      return o.start <= today && o.end >= today;
+    });
+    const defaultId = containing ? containing.id : opts[0] ? opts[0].id : "";
+
+    sel.innerHTML = opts
+      .map(function (o) {
+        return `<option value="${o.id}">${o.label}</option>`;
+      })
+      .join("");
+    if (defaultId) sel.value = defaultId;
+  }
+
+  function getSelectedDateRange() {
+    const sel = document.getElementById("dateRangeSelect");
+    const id = sel && sel.value;
+    const o = id && state.rangeById[id];
+    if (!o) {
+      const end = new Date();
+      end.setHours(0, 0, 0, 0);
+      const start = new Date(end);
+      start.setDate(start.getDate() - 13);
+      return { start, end };
+    }
+    return {
+      start: new Date(o.start.getTime()),
+      end: new Date(o.end.getTime()),
+    };
   }
 
   function daysBetween(a, b) {
@@ -1138,16 +1289,6 @@
         { key: "conversions", label: "Conversions", format: "int", hint: "Account conversion actions counted.", icon: "check-circle" },
       ],
       subsections: [
-        {
-          title: "Channel mix",
-          description: "Spend split across core Google Ads surfaces.",
-          metrics: [
-            { label: "Search", key: "pgSearchSpend", icon: "search" },
-            { label: "Performance Max", key: "pgPmaxSpend", icon: "zap" },
-            { label: "YouTube", key: "pgYoutubeSpend", icon: "eye" },
-            { label: "Demand Gen", key: "pgDemandGenSpend", icon: "layers" },
-          ],
-        },
         {
           title: "Top campaigns",
           description: "Highest-spend campaigns in the window.",
@@ -1442,10 +1583,7 @@
       b2bSqls: Math.round(sum(dailyMql) * 0.42),
       b2bDisqual: 0.11 + seededNoise(seed + "dq") * 0.04,
       pipelineRollup: sum(dailyPipeline),
-      pgSearchSpend: sumSpendG * 0.44,
-      pgPmaxSpend: sumSpendG * 0.38,
-      pgYoutubeSpend: sumSpendG * 0.12,
-      pgDemandGenSpend: sumSpendG * 0.06,
+      googleSpendRollup: sumSpendG,
       googleSearchIS: 0.72 + seededNoise(seed + "gIS") * 0.08,
       pgCpcAvg: sum(dailyCpcGoogle) / Math.max(1, dailyCpcGoogle.length),
       pgCtrRollup: sum(dailyCtrGoogle) / Math.max(1, dailyCtrGoogle.length),
@@ -1608,7 +1746,7 @@
     if (pctKeys.includes(key)) return formatVal(val, "percent");
     if (key === "cRoas") return `${val.toFixed(2)}×`;
     if (key === "pmFreq") return val.toFixed(2);
-    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "ltv", "cpc", "seoAssistedRev", "pipelineRollup", "pgSearchSpend", "pgPmaxSpend", "pgYoutubeSpend", "pgDemandGenSpend", "pgCpcAvg", "pmCostPerResult"];
+    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "ltv", "cpc", "seoAssistedRev", "pipelineRollup", "googleSpendRollup", "pgCpcAvg", "pmCostPerResult"];
     if (currencyKeys.includes(key)) return formatVal(val, "currency");
     const intKeys = ["units", "sessions", "pviews", "newC", "retC", "cConv", "paidSess", "campOrd", "subGrowth", "activeSub", "unsub", "impr", "clicks", "sessRet", "sends", "seoClicks", "b2bFormFills", "mqlsRollup", "b2bSqls", "pmReach", "pmImpr", "pmLinkClicks", "pmPurchases"];
     if (intKeys.includes(key)) return formatVal(val, "int");
@@ -1744,8 +1882,8 @@
     if (kind === "googleCampaigns") {
       const campNames = ["Brand Search — core", "PMax — retail", "Search — non-brand", "YouTube — in-stream", "Demand Gen — prospecting"];
       const rows = campNames.map((name, i) => {
-        const spend = sub.pgSearchSpend * (0.32 - i * 0.045) * (0.92 + seededNoise(seed + "gc" + i));
-        const conv = Math.max(8, Math.round(sub.pgSearchSpend * 0.018 * (0.95 - i * 0.06)));
+        const spend = sub.googleSpendRollup * (0.32 - i * 0.045) * (0.92 + seededNoise(seed + "gc" + i));
+        const conv = Math.max(8, Math.round(sub.googleSpendRollup * 0.018 * (0.95 - i * 0.06)));
         const rev = spend * (2.3 + seededNoise(seed + "grv" + i) * 0.5);
         const roas = spend > 0 ? rev / spend : 0;
         return { name, spend, conv, roas: Math.min(9, roas) };
@@ -1766,7 +1904,7 @@
       const rows = names.map((name, i) => {
         const ctr = 0.035 + seededNoise(seed + "ga" + i) * 0.04;
         const cvr = 0.028 + seededNoise(seed + "gv" + i) * 0.025;
-        const rev = sub.pgPmaxSpend * (0.2 - i * 0.03) * (0.9 + seededNoise(seed + "gav" + i));
+        const rev = sub.googleSpendRollup * (0.2 - i * 0.03) * (0.9 + seededNoise(seed + "gav" + i));
         return { name, ctr, cvr, rev };
       });
       return {
@@ -2231,7 +2369,7 @@
   }
 
   function fullRender() {
-    const { start, end } = getDateRange();
+    const { start, end } = getSelectedDateRange();
     const cmp = getCompareRange(start, end);
 
     const cur = {
@@ -2294,6 +2432,14 @@
   }
   window.addEventListener("resize", scheduleCategoryBridgeLayout);
 
+  initDateRangeSelect();
+  document.getElementById("dateRangeSelect").addEventListener("change", function () {
+    fullRender();
+  });
+  document.getElementById("brandLogoHome").addEventListener("click", function () {
+    initDateRangeSelect();
+    fullRender();
+  });
   fullRender();
 })();
   </script>
