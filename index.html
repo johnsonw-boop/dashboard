@@ -469,8 +469,16 @@
       font-family: Futura, "Century Gothic", sans-serif;
     }
 
+    /* Comparison block: pinned to bottom; dashed rule is the anchor line above it */
+    .kpi-tile-compare {
+      margin-top: auto;
+      padding-top: 0.75rem;
+      border-top: 1px dashed var(--border);
+      flex-shrink: 0;
+    }
+
     .kpi-tile .delta {
-      margin-top: 0.4rem;
+      margin-top: 0;
       font-size: 0.8rem;
       font-weight: 600;
     }
@@ -588,20 +596,6 @@
       min-height: 260px;
       max-height: 380px;
     }
-
-    .kpi-prev {
-      margin-top: auto;
-      padding-top: 0.75rem;
-      border-top: 1px dashed var(--border);
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    .kpi-prev strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
 
     /* Sub-sections accordion */
     .subsections {
@@ -1114,55 +1108,24 @@
       title: "SEO / SEM",
       kpis: [
         { key: "organicSessions", label: "Organic sessions", format: "int", hint: "Sessions via organic search.", icon: "search" },
-        { key: "organicRev", label: "Organic revenue", format: "currency", hint: "Revenue from organic sessions.", icon: "trending-up" },
-        { key: "avgPosition", label: "Avg. position (SEO)", format: "decimal", hint: "Avg. SERP rank; lower = better.", icon: "bar-chart-2" },
-        { key: "semSpend", label: "SEM spend", format: "currency", hint: "Paid search spend.", icon: "credit-card" },
         { key: "organicCtr", label: "Organic CTR", format: "percent", hint: "Clicks ÷ impressions.", icon: "pointer" },
+        { key: "domainAuthority", label: "Domain authority", format: "decimal", hint: "Authority score (0–100); higher indicates stronger off-site signals.", icon: "shield" },
+        { key: "referringDomains", label: "Referring domains", format: "int", hint: "Unique root domains linking to your site.", icon: "share-2" },
+        { key: "backlinks", label: "Backlinks", format: "int", hint: "Total inbound links detected in this index.", icon: "link-2" },
       ],
       subsections: [
-        {
-          title: "SEO visibility",
-          description: "How you earn attention on the SERP before clicks convert on-site.",
-          metrics: [
-            { label: "Organic clicks", key: "seoClicks", icon: "pointer" },
-            { label: "Impressions", key: "seoImpr", icon: "eye" },
-            { label: "Avg. position (rollup)", key: "seoAvgPos", icon: "bar-chart-2" },
-            { label: "Branded click share", key: "brandedShare", icon: "tag" },
-            { label: "SERP feature presence (est.)", key: "serpFeatures", icon: "star" },
-          ],
-        },
-        {
-          title: "SEM (search ads)",
-          description: "Paid search performance separate from broader paid social/display.",
-          metrics: [
-            { label: "SEM spend", key: "semSpend", icon: "credit-card" },
-            { label: "SEM clicks", key: "semClicks", icon: "pointer" },
-            { label: "SEM conversions", key: "semConv", icon: "check-circle" },
-            { label: "SEM CPC", key: "semCpc", icon: "wallet" },
-            { label: "Search impr. share (est.)", key: "semIS", icon: "radio" },
-          ],
-        },
         {
           title: "Landing pages (organic)",
           description: "URLs earning the most organic engagement in this window.",
           detailTable: "seoLandingPages",
         },
-        {
-          title: "Query mix",
-          description: "Balance of branded vs discovery traffic and engagement.",
-          metrics: [
-            { label: "Non-branded click share", key: "nonBrandedShare", icon: "search" },
-            { label: "Organic-assisted revenue (est.)", key: "seoAssistedRev", icon: "leaf" },
-            { label: "New organic users (est.)", key: "newOrganicUsers", icon: "sprout" },
-          ],
-        },
       ],
       charts: [
         { key: "organicSessions", label: "Organic sessions over time", subtitle: "Daily sessions from organic search." },
-        { key: "organicRev", label: "Organic revenue over time", subtitle: "Attributed revenue from organic landings." },
-        { key: "avgPosition", label: "Average position over time", subtitle: "Lower trend line = better average rank." },
-        { key: "semSpend", label: "SEM spend over time", subtitle: "Daily paid search spend." },
         { key: "organicCtr", label: "Organic CTR over time", subtitle: "Daily organic CTR from GSC." },
+        { key: "domainAuthority", label: "Domain authority over time", subtitle: "Blended authority score by day in this window." },
+        { key: "referringDomains", label: "Referring domains over time", subtitle: "Estimated unique linking domains by day." },
+        { key: "backlinks", label: "Backlinks over time", subtitle: "Estimated total inbound links by day." },
       ],
     },
     paidGoogle: {
@@ -1183,16 +1146,6 @@
             { label: "Performance Max", key: "pgPmaxSpend", icon: "zap" },
             { label: "YouTube", key: "pgYoutubeSpend", icon: "eye" },
             { label: "Demand Gen", key: "pgDemandGenSpend", icon: "layers" },
-          ],
-        },
-        {
-          title: "Search & auctions",
-          description: "Visibility and efficiency signals.",
-          metrics: [
-            { label: "Search impr. share (avg.)", key: "googleSearchIS", icon: "bar-chart-2" },
-            { label: "Avg. CPC", key: "pgCpcAvg", icon: "wallet" },
-            { label: "CTR (account)", key: "pgCtrRollup", icon: "pointer" },
-            { label: "Conv. rate (click)", key: "pgConvRate", icon: "crosshair" },
           ],
         },
         {
@@ -1240,7 +1193,6 @@
           metrics: [
             { label: "Engagement rate", key: "pmEngRate", icon: "activity" },
             { label: "Cost per result", key: "pmCostPerResult", icon: "wallet" },
-            { label: "ThruPlays (est.)", key: "pmThruplay", icon: "eye" },
             { label: "Purchases", key: "pmPurchases", icon: "shopping-cart" },
           ],
         },
@@ -1302,17 +1254,6 @@
             { label: "Subscriber growth (period)", key: "subGrowth", icon: "trending-up" },
             { label: "Active subscribers", key: "activeSub", icon: "check-circle" },
             { label: "Unsubscribes", key: "unsub", icon: "log-out" },
-            { label: "Hard bounces (est.)", key: "hardBounce", icon: "x-circle" },
-            { label: "Segment engagement index", key: "segEng", icon: "activity" },
-          ],
-        },
-        {
-          title: "Conversion Impact",
-          description: "Email’s role beyond last-click revenue—assists and retention lift.",
-          metrics: [
-            { label: "Email conversion rate", key: "emCvr", icon: "crosshair" },
-            { label: "Assisted revenue", key: "asst", icon: "handshake" },
-            { label: "Returning revenue from email", key: "retEm", icon: "repeat-2" },
           ],
         },
         {
@@ -1326,7 +1267,7 @@
         { key: "open", label: "Campaign open rate over time", subtitle: "Weighted by campaign volume." },
         { key: "click", label: "Click rate over time", subtitle: "Unique click rate by day." },
         { key: "emOrders", label: "Orders from email over time", subtitle: "Orders with email attribution." },
-        { key: "subGrowth", label: "Net subscriber growth over time", subtitle: "New subs minus unsubscribes and hard bounces." },
+        { key: "subGrowth", label: "Net subscriber growth over time", subtitle: "New subs minus unsubscribes." },
       ],
     },
     b2b: {
@@ -1347,16 +1288,6 @@
             { label: "MQLs (period)", key: "mqlsRollup", icon: "crosshair" },
             { label: "SQLs (est.)", key: "b2bSqls", icon: "star" },
             { label: "Disqualification rate", key: "b2bDisqual", icon: "x-circle" },
-          ],
-        },
-        {
-          title: "Source mix",
-          description: "Where leads originated — adjust for your CRM field definitions.",
-          metrics: [
-            { label: "LinkedIn / paid social", key: "srcLinkedIn", icon: "briefcase" },
-            { label: "Website & content", key: "srcWeb", icon: "globe" },
-            { label: "Events & webinars", key: "srcEvents", icon: "mic" },
-            { label: "Partners & referrals", key: "srcPartner", icon: "handshake" },
           ],
         },
         {
@@ -1442,12 +1373,11 @@
 
     const dailyOrgSess = makeDailySeries(start, end, seed + "og", 5200, 400);
     const dailyOrgRev = makeDailySeries(start, end, seed + "orv", 12400, 900);
-    const dailyAvgPos = makeDailySeries(start, end, seed + "avp", 12.5, 0.85);
-    const dailySemSpendSeo = makeDailySeries(start, end, seed + "sms", 1800, 150);
     const dailyOrgCtr = makeDailySeries(start, end, seed + "oct", 0.045, 0.006);
-    const dailySemClicks = makeDailySeries(start, end, seed + "smc", 980, 85);
     const dailySeoClicks = makeDailySeries(start, end, seed + "sclk", 3100, 220);
-    const dailySeoImpr = makeDailySeries(start, end, seed + "simp", 68500, 4200);
+    const dailyDomainAuthority = makeDailySeries(start, end, seed + "da", 47, 0.85);
+    const dailyReferringDomains = makeDailySeries(start, end, seed + "rd", 1380, 38).map((v) => Math.round(v));
+    const dailyBacklinks = makeDailySeries(start, end, seed + "bl", 21200, 520).map((v) => Math.round(v));
 
     const dailyMql = makeDailySeries(start, end, seed + "mql", 42, 5);
     const dailyPipeline = makeDailySeries(start, end, seed + "pipe", 240000, 18000);
@@ -1505,32 +1435,12 @@
       subGrowth: 420,
       activeSub: 128000,
       unsub: 310,
-      hardBounce: Math.round(80 + seededNoise(seed + "hb") * 120),
-      segEng: 0.72,
-      emCvr: 0.029,
-      asst: sum(dailyEmRev) * 0.35,
-      retEm: sum(dailyEmRev) * 0.28,
       seoClicks: sum(dailySeoClicks),
-      seoImpr: sum(dailySeoImpr),
-      seoAvgPos: sum(dailyAvgPos) / dailyAvgPos.length,
-      brandedShare: 0.38 + seededNoise(seed + "br") * 0.07,
-      serpFeatures: 0.14 + seededNoise(seed + "sf") * 0.06,
-      semSpend: sum(dailySemSpendSeo),
-      semClicks: sum(dailySemClicks),
-      semConv: Math.round(totalOrders * 0.13),
-      semCpc: sum(dailySemSpendSeo) / Math.max(1, sum(dailySemClicks)),
-      semIS: 0.66 + seededNoise(seed + "mis") * 0.08,
-      nonBrandedShare: 0.58 + seededNoise(seed + "nb") * 0.08,
       seoAssistedRev: sum(dailyOrgRev) * 0.42,
-      newOrganicUsers: Math.round(sum(dailyOrgSess) * 0.61),
       mqlsRollup: Math.round(sum(dailyMql)),
       b2bFormFills: Math.round(sum(dailyMql) * 1.35),
       b2bSqls: Math.round(sum(dailyMql) * 0.42),
       b2bDisqual: 0.11 + seededNoise(seed + "dq") * 0.04,
-      srcLinkedIn: 0.36,
-      srcWeb: 0.31,
-      srcEvents: 0.18,
-      srcPartner: 0.15,
       pipelineRollup: sum(dailyPipeline),
       pgSearchSpend: sumSpendG * 0.44,
       pgPmaxSpend: sumSpendG * 0.38,
@@ -1546,7 +1456,6 @@
       pmFreq: sum(dailyFreqMeta) / Math.max(1, dailyFreqMeta.length),
       pmEngRate: sum(dailyEngRateMeta) / Math.max(1, dailyEngRateMeta.length),
       pmCostPerResult: sumSpendM / Math.max(1, sum(dailyPurchMeta) * 1.15),
-      pmThruplay: Math.round(sum(dailyImprMeta) * 0.0022),
       pmPurchases: sum(dailyPurchMeta),
       metaSpendRollup: sumSpendM,
     };
@@ -1584,10 +1493,10 @@
       },
       seosem: {
         organicSessions: dailyOrgSess.map((v) => Math.round(v)),
-        organicRev: dailyOrgRev,
-        avgPosition: dailyAvgPos,
-        semSpend: dailySemSpendSeo,
         organicCtr: dailyOrgCtr,
+        domainAuthority: dailyDomainAuthority,
+        referringDomains: dailyReferringDomains,
+        backlinks: dailyBacklinks,
       },
       b2b: {
         mqls: dailyMql.map((v) => Math.round(v)),
@@ -1629,10 +1538,10 @@
       },
       seosem: {
         organicSessions: Math.round(sum(dailyOrgSess)),
-        organicRev: sum(dailyOrgRev),
-        avgPosition: sum(dailyAvgPos) / dailyAvgPos.length,
-        semSpend: sum(dailySemSpendSeo),
         organicCtr: sum(dailyOrgCtr) / dailyOrgCtr.length,
+        domainAuthority: sum(dailyDomainAuthority) / dailyDomainAuthority.length,
+        referringDomains: Math.round(sum(dailyReferringDomains) / dailyReferringDomains.length),
+        backlinks: Math.round(sum(dailyBacklinks) / dailyBacklinks.length),
       },
       b2b: {
         mqls: Math.round(sum(dailyMql)),
@@ -1680,29 +1589,28 @@
       const cls = delta.dir === "up" ? "up" : delta.dir === "down" ? "down" : "neutral";
       const hint = k.hint ? `<div class="kpi-hint">${k.hint}</div>` : "";
       const disp = k.format === "decimal" && (k.key === "roas" || k.label === "ROAS") ? `${cur.toFixed(2)}×` : formatVal(cur, k.format);
-      const dispPrev = k.format === "decimal" && (k.key === "roas" || k.label === "ROAS") ? `${prev.toFixed(2)}×` : formatVal(prev, k.format);
       const iconEl = k.icon ? `<div class="kpi-icon" aria-hidden="true"><i data-lucide="${k.icon}"></i></div>` : "";
       return `
         <button type="button" class="kpi-tile" data-chart-key="${k.key}" aria-label="View ${k.label} trend">
           <div class="kpi-tile-header">${iconEl}<div class="metric">${k.label}</div></div>
           ${hint}
           <div class="value">${disp}</div>
-          <div class="delta ${cls}" title="${line}">${line}</div>
-          <div class="kpi-prev">Last period: <strong>${dispPrev}</strong></div>
+          <div class="kpi-tile-compare">
+            <div class="delta ${cls}" title="${line}">${line}</div>
+          </div>
         </button>`;
     }).join("");
   }
 
 
   function formatSubValue(key, val) {
-    const pctKeys = ["atc", "chkStart", "chkDone", "repeat", "eng", "paidCvr", "campOpen", "campClick", "segEng", "emCvr", "bounce", "newVisitShare", "delivRate", "brandedShare", "serpFeatures", "semIS", "nonBrandedShare", "b2bDisqual", "srcLinkedIn", "srcWeb", "srcEvents", "srcPartner", "googleSearchIS", "pgCtrRollup", "pgConvRate", "pmEngRate"];
+    const pctKeys = ["atc", "chkStart", "chkDone", "repeat", "eng", "paidCvr", "campOpen", "campClick", "bounce", "newVisitShare", "delivRate", "b2bDisqual", "googleSearchIS", "pgCtrRollup", "pgConvRate", "pmEngRate"];
     if (pctKeys.includes(key)) return formatVal(val, "percent");
     if (key === "cRoas") return `${val.toFixed(2)}×`;
-    if (key === "seoAvgPos") return val.toFixed(2);
     if (key === "pmFreq") return val.toFixed(2);
-    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "asst", "retEm", "ltv", "cpc", "semSpend", "semCpc", "seoAssistedRev", "pipelineRollup", "pgSearchSpend", "pgPmaxSpend", "pgYoutubeSpend", "pgDemandGenSpend", "pgCpcAvg", "pmCostPerResult"];
+    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "ltv", "cpc", "seoAssistedRev", "pipelineRollup", "pgSearchSpend", "pgPmaxSpend", "pgYoutubeSpend", "pgDemandGenSpend", "pgCpcAvg", "pmCostPerResult"];
     if (currencyKeys.includes(key)) return formatVal(val, "currency");
-    const intKeys = ["units", "sessions", "pviews", "newC", "retC", "cConv", "paidSess", "campOrd", "subGrowth", "activeSub", "unsub", "impr", "clicks", "sessRet", "sends", "hardBounce", "seoClicks", "seoImpr", "semClicks", "semConv", "newOrganicUsers", "b2bFormFills", "mqlsRollup", "b2bSqls", "pmReach", "pmImpr", "pmLinkClicks", "pmThruplay", "pmPurchases"];
+    const intKeys = ["units", "sessions", "pviews", "newC", "retC", "cConv", "paidSess", "campOrd", "subGrowth", "activeSub", "unsub", "impr", "clicks", "sessRet", "sends", "seoClicks", "b2bFormFills", "mqlsRollup", "b2bSqls", "pmReach", "pmImpr", "pmLinkClicks", "pmPurchases"];
     if (intKeys.includes(key)) return formatVal(val, "int");
     return formatVal(val, "decimal");
   }
@@ -2050,9 +1958,12 @@
       const meta = chart.getDatasetMeta(0);
       if (!meta?.data?.length) return;
       const labels = chart.data.labels;
+      const values = chart.data.datasets[0].data;
+      const total = values.reduce(function (a, b) {
+        return a + Number(b);
+      }, 0);
       const ctx = chart.ctx;
       ctx.save();
-      ctx.font = "600 13px system-ui, -apple-system, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       meta.data.forEach((arc, i) => {
@@ -2064,8 +1975,13 @@
         const r = outerRadius * 0.58;
         const tx = x + Math.cos(mid) * r;
         const ty = y + Math.sin(mid) * r;
+        const pct = total > 0 ? (Number(values[i]) / total) * 100 : 0;
+        const pctStr = `${pct.toFixed(1)}%`;
         ctx.fillStyle = i === 0 ? "rgba(255, 255, 255, 0.95)" : "rgba(30, 41, 59, 0.95)";
-        ctx.fillText(String(label), tx, ty);
+        ctx.font = "600 12px system-ui, -apple-system, sans-serif";
+        ctx.fillText(String(label), tx, ty - 9);
+        ctx.font = "600 11px system-ui, -apple-system, sans-serif";
+        ctx.fillText(pctStr, tx, ty + 9);
       });
       ctx.restore();
     },
@@ -2075,15 +1991,14 @@
     const v = ctx.parsed.y;
     if (v == null) return "";
     const lab = ctx.dataset.label;
-    if (["revenue", "aov", "paidRev", "spend", "cpp", "cpc", "emRev", "rpr", "organicRev", "pipeline", "cpl"].includes(chartKey)) {
+    if (["revenue", "aov", "paidRev", "spend", "cpp", "cpc", "emRev", "rpr", "pipeline", "cpl"].includes(chartKey)) {
       return `${lab}: ${formatVal(v, "currency")}`;
     }
     if (["cvr", "returning", "ctr", "open", "click", "organicCtr", "leadToOpp"].includes(chartKey)) {
       return `${lab}: ${(v * 100).toFixed(2)}%`;
     }
     if (chartKey === "roas") return `${lab}: ${v.toFixed(2)}×`;
-    if (chartKey === "avgPosition") return `${lab}: ${v.toFixed(2)}`;
-    if (chartKey === "semSpend") return `${lab}: ${formatVal(v, "currency")}`;
+    if (chartKey === "domainAuthority") return `${lab}: ${v.toFixed(2)}`;
     return `${lab}: ${formatVal(v, "int")}`;
   }
 
@@ -2131,7 +2046,30 @@
           plugins: {
             legend: {
               position: "bottom",
-              labels: { boxWidth: 14, padding: 16, font: { size: 12 } },
+              labels: {
+                boxWidth: 14,
+                padding: 16,
+                font: { size: 12 },
+                generateLabels(chart) {
+                  const ds = chart.data.datasets[0];
+                  const lbls = chart.data.labels || [];
+                  const total = ds.data.reduce(function (a, b) {
+                    return a + Number(b);
+                  }, 0);
+                  return lbls.map(function (label, i) {
+                    const pct = total ? ((Number(ds.data[i]) / total) * 100).toFixed(1) : "0.0";
+                    return {
+                      text: `${label} (${pct}%)`,
+                      fillStyle: ds.backgroundColor[i],
+                      strokeStyle: ds.borderColor[i],
+                      lineWidth: ds.borderWidth,
+                      hidden: !chart.getDataVisibility(i),
+                      index: i,
+                      datasetIndex: 0,
+                    };
+                  });
+                },
+              },
             },
             tooltip: {
               callbacks: {
