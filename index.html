@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analytics dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --primary: #1793d1;
+      --primary-dark: #1278ad;
+      --secondary: #241f21;
+      --surface: #f6f8fa;
+      --surface-elevated: #ffffff;
+      --border: #e2e6ea;
+      --text: #1a1718;
+      --text-muted: #5c5659;
+      --positive: #0d8f5b;
+      --negative: #c42b2b;
+      --shadow: 0 4px 24px rgba(36, 31, 33, 0.08);
+      --skew: -6deg;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Fira Sans", system-ui, sans-serif;
+      color: var(--text);
+      background: linear-gradient(165deg, #eef3f7 0%, #f9fafb 40%, #eef2f5 100%);
+      min-height: 100vh;
+    }
+
+    /* Futura-like display — geometric sans */
+    h1, h2, h3, .display {
+      font-family: Futura, "Century Gothic", "Trebuchet MS", system-ui, sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .app-shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 3rem;
+    }
+
+    /* Top bar */
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-mark {
+      flex-shrink: 0;
+      width: 72px;
+      height: 48px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: grid;
+      place-items: center;
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--secondary);
+    }
+
+    .brand p {
+      margin: 0.15rem 0 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Category cards */
+    .category-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 1100px) {
+      .category-row {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    @media (max-width: 1099px) and (min-width: 601px) {
+      .category-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .category-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .category-card {
+      position: relative;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+      background: var(--surface-elevated);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .category-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--primary);
+      transform: skewY(-2deg);
+      transform-origin: top;
+    }
+
+    .category-card:hover {
+      border-color: rgba(23, 147, 209, 0.45);
+      box-shadow: 0 8px 32px rgba(23, 147, 209, 0.12);
+    }
+
+    .category-card.active {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, #fff 0%, #f0f8fc 100%);
+      box-shadow: 0 8px 32px rgba(23, 147, 209, 0.18);
+    }
+
+    .category-card h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.05rem;
+      color: var(--secondary);
+    }
+
+    .category-card p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .category-card .icon {
+      float: right;
+      font-size: 1.5rem;
+      opacity: 0.35;
+    }
+
+    /* KPI tiles */
+    .section-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 0 0 0.75rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      align-items: stretch;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-tile {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+      width: 100%;
+      margin: 0;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1rem 0.85rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      font: inherit;
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .kpi-tile:hover {
+      border-color: rgba(23, 147, 209, 0.45);
+      box-shadow: 0 4px 16px rgba(23, 147, 209, 0.1);
+    }
+
+    .kpi-tile:focus {
+      outline: none;
+    }
+
+    .kpi-tile:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .kpi-tile::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 48px;
+      height: 4px;
+      background: var(--primary);
+      transform: skewX(-12deg);
+      transform-origin: right;
+    }
+
+    .kpi-tile-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: rgba(23, 147, 209, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--primary);
+      stroke-width: 2;
+    }
+
+    .kpi-tile .metric {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .kpi-tile .value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--secondary);
+      font-family: Futura, "Century Gothic", sans-serif;
+    }
+
+    .kpi-tile .delta {
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .kpi-tile .delta.up {
+      color: var(--positive);
+    }
+
+    .kpi-tile .delta.down {
+      color: var(--negative);
+    }
+
+    .kpi-tile .delta.neutral {
+      color: var(--text-muted);
+    }
+
+    .kpi-hint {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+      margin: 0.25rem 0 0.5rem;
+      max-width: 22ch;
+    }
+
+    /* ── KPI chart modal ─────────────────────────────────── */
+    .kpi-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 23, 24, 0.55);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .kpi-modal-backdrop.open {
+      display: flex;
+    }
+
+    .kpi-modal {
+      background: var(--surface-elevated);
+      border-radius: 14px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+      width: min(860px, 100%);
+      max-height: min(92vh, 640px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalIn 0.18s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to   { opacity: 1; transform: scale(1)    translateY(0);    }
+    }
+
+    .kpi-modal-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1.25rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .kpi-modal-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .kpi-modal-title {
+      margin: 0 0 0.2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .kpi-modal-subtitle {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .kpi-modal-close {
+      flex-shrink: 0;
+      margin-left: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1.35rem;
+      line-height: 1;
+      padding: 0.2rem 0.35rem;
+      border-radius: 6px;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .kpi-modal-close:hover {
+      background: var(--border);
+      color: var(--secondary);
+    }
+
+    .kpi-modal-body {
+      padding: 1.25rem 1.5rem 1.5rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .kpi-modal-chart-wrap {
+      height: 100%;
+      min-height: 260px;
+      max-height: 380px;
+    }
+
+    .kpi-prev {
+      margin-top: auto;
+      padding-top: 0.75rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .kpi-prev strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+
+    /* Sub-sections accordion */
+    .subsections {
+      margin-bottom: 2rem;
+    }
+
+    .accordion-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: var(--surface-elevated);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    .accordion-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      background: #fafbfc;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--secondary);
+      text-align: left;
+    }
+
+    .accordion-header:hover {
+      background: #f3f5f7;
+    }
+
+    .accordion-chevron {
+      transition: transform 0.2s;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .accordion-item.collapsed .accordion-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .accordion-body {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .accordion-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin: -0.25rem 0 0.25rem;
+    }
+
+    .accordion-item.collapsed .accordion-body {
+      display: none;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .metric-block {
+      padding: 0.65rem 0.75rem;
+      background: var(--surface);
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .metric-block .m-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .metric-block .m-icon {
+      width: 12px;
+      height: 12px;
+      stroke: var(--primary);
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    .metric-block .m-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .list-metrics {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .list-metrics li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 0.85rem;
+    }
+
+    .list-metrics li:last-child {
+      border-bottom: none;
+    }
+
+    .detail-table-wrap {
+      overflow-x: auto;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .detail-table th,
+    .detail-table td {
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-table th {
+      background: #f3f5f7;
+      font-weight: 600;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .detail-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .detail-table td.num,
+    .detail-table th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .detail-table .delta-cell {
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .detail-table .delta-cell.up {
+      color: var(--positive);
+    }
+
+    .detail-table .delta-cell.down {
+      color: var(--negative);
+    }
+
+
+    .app-footer {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .app-footer h4 {
+      margin: 0 0 0.35rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--secondary);
+    }
+
+
+    .data-fallback {
+      display: none;
+      padding: 1rem;
+      background: #fff8e6;
+      border: 1px solid #e8d4a8;
+      border-radius: 8px;
+      color: #6b5a2a;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .data-fallback.visible {
+      display: block;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-mark">
+          <img
+            src="assets/cec-logo.jpg"
+            alt="CEC CORP"
+            width="72"
+            height="48"
+            decoding="async"
+          />
+        </div>
+        <div>
+          <h1>Analytics dashboard</h1>
+          <p>Shopify · Paid media · Email · B2B · SEO/SEM — performance overview</p>
+        </div>
+      </div>
+    </header>
+
+    <nav class="category-row" aria-label="Main categories">
+      <button type="button" class="category-card active" data-category="shopify" aria-pressed="true">
+        <span class="icon" aria-hidden="true">◆</span>
+        <h2>Shopify Analytics</h2>
+        <p>Conversion &amp; revenue</p>
+      </button>
+      <button type="button" class="category-card" data-category="paid" aria-pressed="false">
+        <span class="icon" aria-hidden="true">▲</span>
+        <h2>Paid Ads</h2>
+        <p>ROAS &amp; spend efficiency</p>
+      </button>
+      <button type="button" class="category-card" data-category="email" aria-pressed="false">
+        <span class="icon" aria-hidden="true">✉</span>
+        <h2>Email Marketing</h2>
+        <p>Campaigns &amp; flows</p>
+      </button>
+      <button type="button" class="category-card" data-category="b2b" aria-pressed="false">
+        <span class="icon" aria-hidden="true">▣</span>
+        <h2>B2B Lead Gen</h2>
+        <p>Pipeline &amp; lead quality</p>
+      </button>
+      <button type="button" class="category-card" data-category="seosem" aria-pressed="false">
+        <span class="icon" aria-hidden="true">⌕</span>
+        <h2>SEO / SEM</h2>
+        <p>Organic &amp; paid search</p>
+      </button>
+    </nav>
+
+    <div id="dataFallback" class="data-fallback" role="status"></div>
+
+    <main id="dashboardMain">
+      <p class="section-title">Key metrics</p>
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <p class="section-title">Other insights</p>
+      <div class="subsections" id="subsections"></div>
+
+    </main>
+
+    <footer class="app-footer" id="appFooter">
+      <h4>Data &amp; definitions</h4>
+      <p>
+        Metrics shown here are <strong>demo data</strong> for layout and workflow. Production should connect to Shopify Admin API,
+        ad platform APIs (Google Ads, Meta), and your ESP (e.g. Klaviyo). Daily batch sync is the recommended V1 cadence. Deltas and trend overlays compare the current bi-weekly window to the <strong>last period</strong> (prior 14 days).
+      </p>
+
+    </footer>
+  </div>
+
+  <!-- KPI chart modal -->
+  <div class="kpi-modal-backdrop" id="kpiModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="kpiModalTitle">
+    <div class="kpi-modal">
+      <div class="kpi-modal-header">
+        <div class="kpi-modal-title-wrap">
+          <h2 class="kpi-modal-title" id="kpiModalTitle"></h2>
+          <p class="kpi-modal-subtitle" id="kpiModalSubtitle"></p>
+        </div>
+        <button type="button" class="kpi-modal-close" id="kpiModalClose" aria-label="Close chart">&#x2715;</button>
+      </div>
+      <div class="kpi-modal-body">
+        <div class="kpi-modal-chart-wrap">
+          <canvas id="kpiModalCanvas" aria-label="Metric trend chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const PRIMARY = "#1793D1";
+  const PRIMARY_DIM = "rgba(23, 147, 209, 0.25)";
+  const COMPARE = "rgba(36, 31, 33, 0.35)";
+
+  const state = {
+    category: "shopify",
+  };
+
+
+  /** Latest dashboard payload for opening KPI charts in a new window */
+  let lastDashboard = { start: null, end: null, cur: null, prev: null, cmp: null };
+
+  function formatYMD(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  /** Fixed bi-weekly window: today back through the prior 13 days (14 days inclusive). */
+  function getDateRange() {
+    const end = new Date();
+    end.setHours(0, 0, 0, 0);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 13);
+    return { start, end };
+  }
+
+  function daysBetween(a, b) {
+    return Math.round((b - a) / 86400000) + 1;
+  }
+
+  function getCompareRange(start, end) {
+    const len = daysBetween(start, end);
+    const ce = new Date(start);
+    ce.setDate(ce.getDate() - 1);
+    const cs = new Date(ce);
+    cs.setDate(cs.getDate() - (len - 1));
+    return { start: cs, end: ce, label: "vs last period" };
+  }
+
+  /** Deterministic pseudo-random 0..1 from string seed */
+  function seededNoise(seed) {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
+    return ((h >>> 0) % 10000) / 10000;
+  }
+
+  function seriesValue(dayIndex, base, amp, seed) {
+    const w = Math.sin(dayIndex / 5) * 0.15 + seededNoise(seed + dayIndex) * 0.08;
+    return base * (1 + w) + amp * Math.sin(dayIndex / 11);
+  }
+
+  function buildTimeLabels(start, end, gran) {
+    const labels = [];
+    const cur = new Date(start);
+    if (gran === "day") {
+      while (cur <= end) {
+        labels.push(formatYMD(cur));
+        cur.setDate(cur.getDate() + 1);
+      }
+    } else if (gran === "week") {
+      while (cur <= end) {
+        const weekEnd = new Date(cur);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        const sliceEnd = weekEnd > end ? end : weekEnd;
+        labels.push(`${formatYMD(cur)} – ${formatYMD(sliceEnd)}`);
+        cur.setDate(cur.getDate() + 7);
+      }
+    } else {
+      let it = new Date(start);
+      while (it <= end) {
+        labels.push(it.toLocaleString("en-US", { month: "short", year: "numeric" }));
+        const m = it.getMonth();
+        const y = it.getFullYear();
+        it = new Date(y, m + 1, 1);
+      }
+    }
+    return labels;
+  }
+
+  function aggregateSeries(daily, labels, gran, start, end) {
+    if (gran === "day") return daily;
+
+    const out = [];
+    let cur = new Date(start);
+    let idx = 0;
+
+    if (gran === "week") {
+      while (cur <= end) {
+        let sum = 0;
+        let n = 0;
+        for (let i = 0; i < 7 && cur <= end; i++, n++) {
+          sum += daily[idx++] || 0;
+          cur.setDate(cur.getDate() + 1);
+        }
+        out.push(n ? sum / n : 0);
+      }
+    } else {
+      while (cur <= end) {
+        const month = cur.getMonth();
+        const year = cur.getFullYear();
+        let sum = 0;
+        let n = 0;
+        while (cur <= end && cur.getMonth() === month && cur.getFullYear() === year) {
+          sum += daily[idx++] || 0;
+          cur.setDate(cur.getDate() + 1);
+          n++;
+        }
+        out.push(n ? sum / n : 0);
+      }
+    }
+
+    while (out.length < labels.length) out.push(0);
+    return out.slice(0, labels.length);
+  }
+
+  function makeDailySeries(start, end, seedBase, base, amp) {
+    const n = daysBetween(start, end);
+    const arr = [];
+    for (let i = 0; i < n; i++) {
+      arr.push(Math.max(0, seriesValue(i, base, amp, seedBase + i)));
+    }
+    return arr;
+  }
+
+  const CATEGORY_CONFIG = {
+    shopify: {
+      title: "Shopify Analytics",
+      kpis: [
+        { key: "revenue", label: "Revenue", format: "currency", hint: "Net sales in the window.", icon: "dollar-sign" },
+        { key: "orders", label: "Orders", format: "int", hint: "Paid orders only.", icon: "shopping-cart" },
+        { key: "cvr", label: "Conversion rate", format: "percent", hint: "Orders ÷ sessions.", icon: "crosshair" },
+        { key: "aov", label: "Average order value", format: "currency", hint: "Revenue ÷ orders.", icon: "tag" },
+        { key: "returning", label: "Returning customer rate", format: "percent", hint: "Orders from repeat customers.", icon: "repeat-2" },
+      ],
+      subsections: [
+        {
+          title: "Sales Performance",
+          description: "Gross → net breakdown.",
+          metrics: [
+            { label: "Gross sales", key: "gross", icon: "dollar-sign" },
+            { label: "Net sales", key: "net", icon: "wallet" },
+            { label: "Discounts", key: "discounts", icon: "tag" },
+            { label: "Tax collected", key: "tax", icon: "landmark" },
+            { label: "Shipping revenue", key: "shipCol", icon: "package" },
+            { label: "Refund amount", key: "refund", icon: "undo-2" },
+            { label: "Units sold", key: "units", icon: "layers" },
+          ],
+        },
+        {
+          title: "Conversion Funnel",
+          description: "Session-to-purchase funnel.",
+          metrics: [
+            { label: "Sessions", key: "sessions", icon: "users" },
+            { label: "Product views", key: "pviews", icon: "eye" },
+            { label: "Bounce rate", key: "bounce", icon: "log-out" },
+            { label: "Add to cart rate", key: "atc", icon: "shopping-cart" },
+            { label: "PDP → cart rate", key: "pdpToCart", icon: "arrow-right-left" },
+            { label: "Checkout initiation", key: "chkStart", icon: "file-text" },
+            { label: "Checkout completion rate", key: "chkDone", icon: "check-circle" },
+          ],
+        },
+        {
+          title: "Customer Behavior",
+          description: "New vs. returning buyer mix.",
+          metrics: [
+            { label: "New customers", key: "newC", icon: "user-plus" },
+            { label: "Returning customers", key: "retC", icon: "repeat-2" },
+            { label: "Repeat purchase rate", key: "repeat", icon: "arrow-right-left" },
+            { label: "Returning sessions (est.)", key: "sessRet", icon: "bar-chart-2" },
+            { label: "Blended LTV snapshot", key: "ltv", icon: "gem" },
+          ],
+        },
+        {
+          title: "Product Performance",
+          description: "Top products by revenue.",
+          detailTable: "shopifyProducts",
+        },
+      ],
+      charts: [
+        { key: "revenue", label: "Revenue over time", subtitle: "Daily net sales." },
+        { key: "orders", label: "Orders over time", subtitle: "By order date." },
+        { key: "cvr", label: "Conversion rate over time", subtitle: "Orders ÷ sessions." },
+        { key: "aov", label: "AOV over time", subtitle: "Revenue ÷ orders." },
+        { key: "returning", label: "Returning customer share over time", subtitle: "Repeat customer orders." },
+      ],
+    },
+    seosem: {
+      title: "SEO / SEM",
+      kpis: [
+        { key: "organicSessions", label: "Organic sessions", format: "int", hint: "Sessions via organic search.", icon: "search" },
+        { key: "organicRev", label: "Organic revenue", format: "currency", hint: "Revenue from organic sessions.", icon: "trending-up" },
+        { key: "avgPosition", label: "Avg. position (SEO)", format: "decimal", hint: "Avg. SERP rank; lower = better.", icon: "bar-chart-2" },
+        { key: "semSpend", label: "SEM spend", format: "currency", hint: "Paid search spend.", icon: "credit-card" },
+        { key: "organicCtr", label: "Organic CTR", format: "percent", hint: "Clicks ÷ impressions.", icon: "pointer" },
+      ],
+      subsections: [
+        {
+          title: "SEO visibility",
+          description: "How you earn attention on the SERP before clicks convert on-site.",
+          metrics: [
+            { label: "Organic clicks", key: "seoClicks", icon: "pointer" },
+            { label: "Impressions", key: "seoImpr", icon: "eye" },
+            { label: "Avg. position (rollup)", key: "seoAvgPos", icon: "bar-chart-2" },
+            { label: "Branded click share", key: "brandedShare", icon: "tag" },
+            { label: "SERP feature presence (est.)", key: "serpFeatures", icon: "star" },
+          ],
+        },
+        {
+          title: "SEM (search ads)",
+          description: "Paid search performance separate from broader paid social/display.",
+          metrics: [
+            { label: "SEM spend", key: "semSpend", icon: "credit-card" },
+            { label: "SEM clicks", key: "semClicks", icon: "pointer" },
+            { label: "SEM conversions", key: "semConv", icon: "check-circle" },
+            { label: "SEM CPC", key: "semCpc", icon: "wallet" },
+            { label: "Search impr. share (est.)", key: "semIS", icon: "radio" },
+          ],
+        },
+        {
+          title: "Landing pages (organic)",
+          description: "URLs earning the most organic engagement in this window.",
+          detailTable: "seoLandingPages",
+        },
+        {
+          title: "Query mix",
+          description: "Balance of branded vs discovery traffic and engagement.",
+          metrics: [
+            { label: "Non-branded click share", key: "nonBrandedShare", icon: "search" },
+            { label: "Organic-assisted revenue (est.)", key: "seoAssistedRev", icon: "leaf" },
+            { label: "New organic users (est.)", key: "newOrganicUsers", icon: "sprout" },
+          ],
+        },
+      ],
+      charts: [
+        { key: "organicSessions", label: "Organic sessions over time", subtitle: "Daily sessions from organic search." },
+        { key: "organicRev", label: "Organic revenue over time", subtitle: "Attributed revenue from organic landings." },
+        { key: "avgPosition", label: "Average position over time", subtitle: "Lower trend line = better average rank." },
+        { key: "semSpend", label: "SEM spend over time", subtitle: "Daily paid search spend." },
+        { key: "organicCtr", label: "Organic CTR over time", subtitle: "Daily organic CTR from GSC." },
+      ],
+    },
+    paid: {
+      title: "Paid Ads",
+      kpis: [
+        { key: "spend", label: "Ad spend", format: "currency", hint: "Total platform spend.", icon: "credit-card" },
+        { key: "paidRev", label: "Revenue from paid", format: "currency", hint: "Revenue attributed to paid.", icon: "trending-up" },
+        { key: "roas", label: "ROAS", format: "decimal", hint: "Attributed revenue ÷ ad spend.", icon: "zap" },
+        { key: "cpp", label: "Cost per purchase", format: "currency", hint: "Spend ÷ attributed purchases.", icon: "tag" },
+        { key: "ctr", label: "CTR", format: "percent", hint: "Clicks ÷ impressions.", icon: "pointer" },
+      ],
+      subsections: [
+        {
+          title: "Campaign Performance",
+          description: "Aggregated roll-up of active campaigns; drill into platforms for placement-level detail.",
+          metrics: [
+            { label: "Campaign spend", key: "cSpend", icon: "credit-card" },
+            { label: "Campaign revenue", key: "cRev", icon: "trending-up" },
+            { label: "Campaign ROAS", key: "cRoas", icon: "zap" },
+            { label: "Conversions (purchases)", key: "cConv", icon: "check-circle" },
+            { label: "Impressions", key: "impr", icon: "eye" },
+            { label: "Clicks", key: "clicks", icon: "pointer" },
+            { label: "CPC (blended)", key: "cpc", icon: "wallet" },
+          ],
+        },
+        {
+          title: "Traffic Quality",
+          description: "How paid traffic behaves once it lands—engagement and downstream conversion.",
+          metrics: [
+            { label: "Sessions from paid", key: "paidSess", icon: "users" },
+            { label: "New visitor share", key: "newVisitShare", icon: "user-plus" },
+            { label: "Engagement rate", key: "eng", icon: "activity" },
+            { label: "Paid traffic CVR", key: "paidCvr", icon: "crosshair" },
+          ],
+        },
+        {
+          title: "Creative / Ad Performance",
+          description: "Creative-level winners for prospecting and retargeting mixes.",
+          detailTable: "paidCreatives",
+        },
+        {
+          title: "Platform Breakdown",
+          description: "Spend and return split across Google, Meta, and other paid channels.",
+          detailTable: "paidPlatforms",
+        },
+      ],
+      charts: [
+        { key: "spend", label: "Spend over time", subtitle: "Daily spend as reported by each ad platform." },
+        { key: "paidRev", label: "Paid revenue over time", subtitle: "Attributed revenue tied to paid touchpoints." },
+        { key: "roas", label: "ROAS over time", subtitle: "Revenue ÷ spend per time bucket." },
+        { key: "cpp", label: "Cost per purchase over time", subtitle: "Spend ÷ attributed purchases." },
+        { key: "ctr", label: "CTR over time", subtitle: "Blended CTR across active ads." },
+      ],
+    },
+    email: {
+      title: "Email Marketing",
+      kpis: [
+        { key: "emRev", label: "Email revenue", format: "currency", hint: "Email-attributed revenue.", icon: "dollar-sign" },
+        { key: "emOrders", label: "Email orders", format: "int", hint: "Orders with email touchpoint.", icon: "shopping-cart" },
+        { key: "open", label: "Open rate", format: "percent", hint: "Unique opens ÷ delivered.", icon: "mail" },
+        { key: "click", label: "Click rate", format: "percent", hint: "Unique clicks ÷ delivered.", icon: "pointer" },
+        { key: "rpr", label: "Revenue per recipient", format: "currency", hint: "Revenue ÷ recipients.", icon: "tag" },
+      ],
+      subsections: [
+        {
+          title: "Campaign Performance",
+          description: "Broadcast and promo sends; flows are broken out separately below.",
+          metrics: [
+            { label: "Campaign sends (est.)", key: "sends", icon: "send" },
+            { label: "Delivered rate", key: "delivRate", icon: "check-circle" },
+            { label: "Revenue (campaigns)", key: "campRev", icon: "wallet" },
+            { label: "Orders (campaigns)", key: "campOrd", icon: "shopping-cart" },
+            { label: "Avg open rate", key: "campOpen", icon: "mail" },
+            { label: "Avg click rate", key: "campClick", icon: "pointer" },
+          ],
+        },
+        {
+          title: "Flow Performance",
+          description: "Automated journeys—often the highest-intent revenue after campaigns.",
+          metrics: [
+            { label: "Welcome flow revenue", key: "flowW", icon: "hand" },
+            { label: "Abandoned cart revenue", key: "flowA", icon: "shopping-cart" },
+            { label: "Browse abandonment revenue", key: "flowB", icon: "eye" },
+            { label: "Winback revenue", key: "flowWin", icon: "repeat-2" },
+          ],
+        },
+        {
+          title: "Audience Performance",
+          description: "List health: growth, hygiene, and engagement against your segments.",
+          metrics: [
+            { label: "Subscriber growth (period)", key: "subGrowth", icon: "trending-up" },
+            { label: "Active subscribers", key: "activeSub", icon: "check-circle" },
+            { label: "Unsubscribes", key: "unsub", icon: "log-out" },
+            { label: "Hard bounces (est.)", key: "hardBounce", icon: "x-circle" },
+            { label: "Segment engagement index", key: "segEng", icon: "activity" },
+          ],
+        },
+        {
+          title: "Conversion Impact",
+          description: "Email’s role beyond last-click revenue—assists and retention lift.",
+          metrics: [
+            { label: "Email conversion rate", key: "emCvr", icon: "crosshair" },
+            { label: "Assisted revenue", key: "asst", icon: "handshake" },
+            { label: "Returning revenue from email", key: "retEm", icon: "repeat-2" },
+          ],
+        },
+        {
+          title: "Top campaigns (detail)",
+          description: "Row-level view of the highest-revenue sends in this period.",
+          detailTable: "emailCampaigns",
+        },
+      ],
+      charts: [
+        { key: "emRev", label: "Email revenue over time", subtitle: "Attributed revenue by send day." },
+        { key: "open", label: "Campaign open rate over time", subtitle: "Weighted by campaign volume." },
+        { key: "click", label: "Click rate over time", subtitle: "Unique click rate by day." },
+        { key: "emOrders", label: "Orders from email over time", subtitle: "Orders with email attribution." },
+        { key: "subGrowth", label: "Net subscriber growth over time", subtitle: "New subs minus unsubscribes and hard bounces." },
+      ],
+    },
+    b2b: {
+      title: "B2B Lead Generation",
+      kpis: [
+        { key: "mqls", label: "Qualified leads (MQLs)", format: "int", hint: "MQLs created this period.", icon: "crosshair" },
+        { key: "pipeline", label: "Pipeline value", format: "currency", hint: "Open opportunity value.", icon: "trending-up" },
+        { key: "cpl", label: "Cost per lead", format: "currency", hint: "Spend ÷ qualified leads.", icon: "tag" },
+        { key: "leadToOpp", label: "Lead → opportunity rate", format: "percent", hint: "Leads → open opportunity.", icon: "repeat-2" },
+        { key: "meetings", label: "Meetings booked", format: "int", hint: "Meetings from inbound leads.", icon: "calendar" },
+      ],
+      subsections: [
+        {
+          title: "Funnel & volume",
+          description: "Top-of-funnel through qualification and sales-ready stages.",
+          metrics: [
+            { label: "Form fills (raw)", key: "b2bFormFills", icon: "file-pen-line" },
+            { label: "MQLs (period)", key: "mqlsRollup", icon: "crosshair" },
+            { label: "SQLs (est.)", key: "b2bSqls", icon: "star" },
+            { label: "Disqualification rate", key: "b2bDisqual", icon: "x-circle" },
+          ],
+        },
+        {
+          title: "Source mix",
+          description: "Where leads originated — adjust for your CRM field definitions.",
+          metrics: [
+            { label: "LinkedIn / paid social", key: "srcLinkedIn", icon: "briefcase" },
+            { label: "Website & content", key: "srcWeb", icon: "globe" },
+            { label: "Events & webinars", key: "srcEvents", icon: "mic" },
+            { label: "Partners & referrals", key: "srcPartner", icon: "handshake" },
+          ],
+        },
+        {
+          title: "Programs & campaigns",
+          description: "Top performing B2B programs in the period.",
+          detailTable: "b2bCampaigns",
+        },
+      ],
+      charts: [
+        { key: "mqls", label: "Qualified leads over time", subtitle: "Daily MQL count." },
+        { key: "pipeline", label: "Pipeline value over time", subtitle: "Sum of opportunity value by day." },
+        { key: "cpl", label: "Cost per lead over time", subtitle: "Blended CPL across programs." },
+        { key: "leadToOpp", label: "Lead → opportunity rate over time", subtitle: "Rolling conversion rate." },
+        { key: "meetings", label: "Meetings booked over time", subtitle: "Meetings scheduled from inbound." },
+      ],
+    },
+  };
+
+  function sum(arr) {
+    return arr.reduce((a, b) => a + b, 0);
+  }
+
+  function formatVal(val, format) {
+    if (format === "currency") return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
+    if (format === "int") return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.round(val));
+    if (format === "percent") return `${(val * 100).toFixed(2)}%`;
+    if (format === "decimal") return val.toFixed(2);
+    return String(val);
+  }
+
+  function computeMetricsForCategory(cat, start, end) {
+    const seed = cat + formatYMD(start) + formatYMD(end);
+    const dailyRev = makeDailySeries(start, end, seed + "r", 4200, 400);
+    const dailyOrders = makeDailySeries(start, end, seed + "o", 38, 4).map((v) => Math.round(v));
+    const dailyCvr = makeDailySeries(start, end, seed + "c", 0.032, 0.004);
+    const dailyAov = makeDailySeries(start, end, seed + "a", 112, 6);
+    const dailyRet = makeDailySeries(start, end, seed + "t", 0.28, 0.03);
+
+    const totalRev = sum(dailyRev);
+    const totalOrders = sum(dailyOrders.map(Math.round));
+    const avgCvr = sum(dailyCvr) / dailyCvr.length;
+    const avgAov = sum(dailyAov) / dailyAov.length;
+    const avgRet = sum(dailyRet) / dailyRet.length;
+
+    const dailySpend = makeDailySeries(start, end, seed + "s", 2100, 180);
+    const dailyPaidRev = makeDailySeries(start, end, seed + "pr", 8900, 700);
+    const dailyRoas = dailyPaidRev.map((r, i) => (dailySpend[i] > 0 ? r / dailySpend[i] : 0));
+    const dailyCpp = dailySpend.map((s, i) => {
+      const o = Math.max(1, dailyOrders[i]);
+      return s / o;
+    });
+    const dailyCtr = makeDailySeries(start, end, seed + "ctr", 0.014, 0.002);
+
+    const dailyEmRev = makeDailySeries(start, end, seed + "er", 3100, 220);
+    const dailyEmOrders = makeDailySeries(start, end, seed + "eo", 22, 2).map((v) => Math.round(v));
+    const dailyOpen = makeDailySeries(start, end, seed + "op", 0.38, 0.03);
+    const dailyClick = makeDailySeries(start, end, seed + "cl", 0.042, 0.006);
+    const dailyRpr = makeDailySeries(start, end, seed + "rp", 0.18, 0.02);
+
+    const dailyOrgSess = makeDailySeries(start, end, seed + "og", 5200, 400);
+    const dailyOrgRev = makeDailySeries(start, end, seed + "orv", 12400, 900);
+    const dailyAvgPos = makeDailySeries(start, end, seed + "avp", 12.5, 0.85);
+    const dailySemSpendSeo = makeDailySeries(start, end, seed + "sms", 1800, 150);
+    const dailyOrgCtr = makeDailySeries(start, end, seed + "oct", 0.045, 0.006);
+    const dailySemClicks = makeDailySeries(start, end, seed + "smc", 980, 85);
+    const dailySeoClicks = makeDailySeries(start, end, seed + "sclk", 3100, 220);
+    const dailySeoImpr = makeDailySeries(start, end, seed + "simp", 68500, 4200);
+
+    const dailyMql = makeDailySeries(start, end, seed + "mql", 42, 5);
+    const dailyPipeline = makeDailySeries(start, end, seed + "pipe", 240000, 18000);
+    const dailyCpl = makeDailySeries(start, end, seed + "cpl", 185, 22);
+    const dailyLeadOpp = makeDailySeries(start, end, seed + "lo", 0.22, 0.03);
+    const dailyMeetings = makeDailySeries(start, end, seed + "mtg", 18, 3);
+
+    const totalSpend = sum(dailySpend);
+    const totalClicks = Math.max(1, Math.round(totalSpend * 0.52));
+    const totalImpr = Math.round(totalClicks / 0.018);
+
+    const subBase = {
+      gross: totalRev * 1.04,
+      net: totalRev * 0.97,
+      discounts: totalRev * 0.06,
+      tax: totalRev * 0.072,
+      shipCol: totalRev * 0.04,
+      refund: totalRev * 0.03,
+      units: totalOrders * 1.8,
+      sessions: totalOrders * 42,
+      pviews: totalOrders * 118,
+      bounce: 0.38 + seededNoise(seed + "bz") * 0.08,
+      atc: 0.092,
+      pdpToCart: 0.118,
+      chkStart: 0.054,
+      chkDone: avgCvr,
+      newC: totalOrders * 0.62,
+      retC: totalOrders * 0.38,
+      repeat: 0.21,
+      sessRet: totalOrders * 16,
+      ltv: avgAov * 2.4,
+      cSpend: totalSpend,
+      cRev: sum(dailyPaidRev) * 0.85,
+      cRoas: 3.2,
+      cConv: Math.round(totalOrders * 0.45),
+      impr: totalImpr,
+      clicks: totalClicks,
+      cpc: totalSpend / totalClicks,
+      paidSess: totalOrders * 19,
+      newVisitShare: 0.54 + seededNoise(seed + "nv") * 0.06,
+      eng: 0.61,
+      paidCvr: 0.041,
+      platG: totalSpend * 0.42,
+      platM: totalSpend * 0.48,
+      platO: totalSpend * 0.1,
+      campRev: sum(dailyEmRev) * 0.72,
+      campOrd: Math.round(sum(dailyEmOrders) * 0.8),
+      campOpen: 0.36,
+      campClick: 0.039,
+      sends: Math.round(sum(dailyEmOrders) * 44 + seededNoise(seed + "snd") * 4000),
+      delivRate: 0.985,
+      flowW: sum(dailyEmRev) * 0.12,
+      flowA: sum(dailyEmRev) * 0.22,
+      flowB: sum(dailyEmRev) * 0.08,
+      flowWin: sum(dailyEmRev) * 0.06,
+      subGrowth: 420,
+      activeSub: 128000,
+      unsub: 310,
+      hardBounce: Math.round(80 + seededNoise(seed + "hb") * 120),
+      segEng: 0.72,
+      emCvr: 0.029,
+      asst: sum(dailyEmRev) * 0.35,
+      retEm: sum(dailyEmRev) * 0.28,
+      seoClicks: sum(dailySeoClicks),
+      seoImpr: sum(dailySeoImpr),
+      seoAvgPos: sum(dailyAvgPos) / dailyAvgPos.length,
+      brandedShare: 0.38 + seededNoise(seed + "br") * 0.07,
+      serpFeatures: 0.14 + seededNoise(seed + "sf") * 0.06,
+      semSpend: sum(dailySemSpendSeo),
+      semClicks: sum(dailySemClicks),
+      semConv: Math.round(totalOrders * 0.13),
+      semCpc: sum(dailySemSpendSeo) / Math.max(1, sum(dailySemClicks)),
+      semIS: 0.66 + seededNoise(seed + "mis") * 0.08,
+      nonBrandedShare: 0.58 + seededNoise(seed + "nb") * 0.08,
+      seoAssistedRev: sum(dailyOrgRev) * 0.42,
+      newOrganicUsers: Math.round(sum(dailyOrgSess) * 0.61),
+      mqlsRollup: Math.round(sum(dailyMql)),
+      b2bFormFills: Math.round(sum(dailyMql) * 1.35),
+      b2bSqls: Math.round(sum(dailyMql) * 0.42),
+      b2bDisqual: 0.11 + seededNoise(seed + "dq") * 0.04,
+      srcLinkedIn: 0.36,
+      srcWeb: 0.31,
+      srcEvents: 0.18,
+      srcPartner: 0.15,
+      pipelineRollup: sum(dailyPipeline),
+    };
+
+    const series = {
+      shopify: {
+        revenue: dailyRev,
+        orders: dailyOrders.map((v) => Math.round(v)),
+        cvr: dailyCvr,
+        aov: dailyAov,
+        returning: dailyRet,
+      },
+      paid: {
+        spend: dailySpend,
+        paidRev: dailyPaidRev,
+        roas: dailyRoas,
+        cpp: dailyCpp,
+        ctr: dailyCtr,
+      },
+      email: {
+        emRev: dailyEmRev,
+        open: dailyOpen,
+        click: dailyClick,
+        emOrders: dailyEmOrders.map((v) => Math.round(v)),
+        subGrowth: makeDailySeries(start, end, seed + "sg", 14, 3),
+      },
+      seosem: {
+        organicSessions: dailyOrgSess.map((v) => Math.round(v)),
+        organicRev: dailyOrgRev,
+        avgPosition: dailyAvgPos,
+        semSpend: dailySemSpendSeo,
+        organicCtr: dailyOrgCtr,
+      },
+      b2b: {
+        mqls: dailyMql.map((v) => Math.round(v)),
+        pipeline: dailyPipeline,
+        cpl: dailyCpl,
+        leadToOpp: dailyLeadOpp,
+        meetings: dailyMeetings.map((v) => Math.round(v)),
+      },
+    };
+
+    const kpis = {
+      shopify: {
+        revenue: totalRev,
+        orders: totalOrders,
+        cvr: avgCvr,
+        aov: avgAov,
+        returning: avgRet,
+      },
+      paid: {
+        spend: sum(dailySpend),
+        paidRev: sum(dailyPaidRev),
+        roas: sum(dailyPaidRev) / Math.max(1, sum(dailySpend)),
+        cpp: sum(dailyCpp) / dailyCpp.length,
+        ctr: sum(dailyCtr) / dailyCtr.length,
+      },
+      email: {
+        emRev: sum(dailyEmRev),
+        emOrders: sum(dailyEmOrders.map(Math.round)),
+        open: sum(dailyOpen) / dailyOpen.length,
+        click: sum(dailyClick) / dailyClick.length,
+        rpr: sum(dailyRpr) / dailyRpr.length,
+      },
+      seosem: {
+        organicSessions: Math.round(sum(dailyOrgSess)),
+        organicRev: sum(dailyOrgRev),
+        avgPosition: sum(dailyAvgPos) / dailyAvgPos.length,
+        semSpend: sum(dailySemSpendSeo),
+        organicCtr: sum(dailyOrgCtr) / dailyOrgCtr.length,
+      },
+      b2b: {
+        mqls: Math.round(sum(dailyMql)),
+        pipeline: sum(dailyPipeline),
+        cpl: sum(dailyCpl) / dailyCpl.length,
+        leadToOpp: sum(dailyLeadOpp) / dailyLeadOpp.length,
+        meetings: Math.round(sum(dailyMeetings)),
+      },
+    };
+
+    return { kpis: kpis[cat], sub: subBase, series: series[cat] };
+  }
+
+  function computeDelta(current, previous, format) {
+    if (!previous || previous === 0) return { pct: 0, dir: "neutral" };
+    const pct = (current - previous) / Math.abs(previous);
+    return {
+      pct,
+      dir: pct > 0.005 ? "up" : pct < -0.005 ? "down" : "neutral",
+      label: formatVal(Math.abs(pct), "percent").replace("%", "") + " pts",
+    };
+  }
+
+  function formatDeltaLine(delta, format, current, prev) {
+    if (delta.dir === "neutral") return "Flat vs last period";
+    const sym = delta.dir === "up" ? "↑" : "↓";
+    if (format === "currency" || format === "int" || format === "decimal") {
+      const diff = current - prev;
+      const sign = diff >= 0 ? "+" : "";
+      if (format === "currency") return `${sym} ${sign}${formatVal(Math.abs(diff), "currency")} vs last period`;
+      if (format === "int") return `${sym} ${sign}${Math.round(diff)} vs last period`;
+      return `${sym} ${sign}${diff.toFixed(2)} vs last period`;
+    }
+    return `${sym} ${(Math.abs(delta.pct) * 100).toFixed(1)}% vs last period`;
+  }
+
+  function renderKpis(cat, data, prevData) {
+    const cfg = CATEGORY_CONFIG[cat];
+    const grid = document.getElementById("kpiGrid");
+    grid.innerHTML = cfg.kpis.map((k) => {
+      const cur = data.kpis[k.key];
+      const prev = prevData.kpis[k.key];
+      const delta = computeDelta(cur, prev, k.format);
+      const line = formatDeltaLine(delta, k.format, cur, prev);
+      const cls = delta.dir === "up" ? "up" : delta.dir === "down" ? "down" : "neutral";
+      const hint = k.hint ? `<div class="kpi-hint">${k.hint}</div>` : "";
+      const disp = k.format === "decimal" && (k.key === "roas" || k.label === "ROAS") ? `${cur.toFixed(2)}×` : formatVal(cur, k.format);
+      const dispPrev = k.format === "decimal" && (k.key === "roas" || k.label === "ROAS") ? `${prev.toFixed(2)}×` : formatVal(prev, k.format);
+      const iconEl = k.icon ? `<div class="kpi-icon" aria-hidden="true"><i data-lucide="${k.icon}"></i></div>` : "";
+      return `
+        <button type="button" class="kpi-tile" data-chart-key="${k.key}" aria-label="View ${k.label} trend">
+          <div class="kpi-tile-header">${iconEl}<div class="metric">${k.label}</div></div>
+          ${hint}
+          <div class="value">${disp}</div>
+          <div class="delta ${cls}" title="${line}">${line}</div>
+          <div class="kpi-prev">Last period: <strong>${dispPrev}</strong></div>
+        </button>`;
+    }).join("");
+  }
+
+
+  function formatSubValue(key, val) {
+    const pctKeys = ["atc", "chkStart", "chkDone", "repeat", "eng", "paidCvr", "campOpen", "campClick", "segEng", "emCvr", "bounce", "pdpToCart", "newVisitShare", "delivRate", "brandedShare", "serpFeatures", "semIS", "nonBrandedShare", "b2bDisqual", "srcLinkedIn", "srcWeb", "srcEvents", "srcPartner"];
+    if (pctKeys.includes(key)) return formatVal(val, "percent");
+    if (key === "cRoas") return `${val.toFixed(2)}×`;
+    if (key === "seoAvgPos") return val.toFixed(2);
+    const currencyKeys = ["gross", "net", "refund", "discounts", "tax", "shipCol", "cSpend", "cRev", "platG", "platM", "platO", "campRev", "flowW", "flowA", "flowB", "flowWin", "asst", "retEm", "ltv", "cpc", "semSpend", "semCpc", "seoAssistedRev", "pipelineRollup"];
+    if (currencyKeys.includes(key)) return formatVal(val, "currency");
+    const intKeys = ["units", "sessions", "pviews", "newC", "retC", "cConv", "paidSess", "campOrd", "subGrowth", "activeSub", "unsub", "impr", "clicks", "sessRet", "sends", "hardBounce", "seoClicks", "seoImpr", "semClicks", "semConv", "newOrganicUsers", "b2bFormFills", "mqlsRollup", "b2bSqls"];
+    if (intKeys.includes(key)) return formatVal(val, "int");
+    return formatVal(val, "decimal");
+  }
+
+  function buildDetailTable(kind, seed, sub) {
+    const names = {
+      shopifyProducts: ["Aero Shell Jacket", "Essential Merino Tee", "Trail Pack 28L", "City Sneaker — Ltd.", "Ultralight Rain Shell"],
+      paidCreatives: ["Carousel — Spring drop", "UGC video — testimonial", "Static — promo stack", "Story — social proof", "Reels — unboxing"],
+      emailCampaigns: ["Spring launch blast", "VIP early access", "Back-in-stock drops", "Newsletter #42", "Sunset collection tease"],
+    };
+
+    if (kind === "shopifyProducts") {
+      const rows = names.shopifyProducts.map((name, i) => {
+        const rev = sub.gross * (0.14 - i * 0.022) * (0.85 + seededNoise(seed + "R" + i));
+        const units = Math.max(12, Math.round(sub.units * (0.09 - i * 0.014)));
+        const cvr = 0.018 + seededNoise(seed + "V" + i) * 0.05;
+        const sess = Math.round(sub.sessions * (0.055 - i * 0.006));
+        const flag = cvr < 0.028 && sess > sub.sessions * 0.04 ? "High traffic · low CVR" : i < 2 ? "Balanced" : "Niche / long tail";
+        return { name, rev, units, cvr, sess, flag };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Product" },
+          { key: "rev", label: "Revenue", num: true },
+          { key: "units", label: "Units", num: true },
+          { key: "cvr", label: "CVR", num: true, fmt: "percent" },
+          { key: "sess", label: "Sessions", num: true },
+          { key: "flag", label: "Note" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "paidCreatives") {
+      const rows = names.paidCreatives.map((name, i) => {
+        const ctr = 0.008 + seededNoise(seed + "ct" + i) * 0.022;
+        const cvr = 0.022 + seededNoise(seed + "cv" + i) * 0.03;
+        const rev = sub.cRev * (0.22 - i * 0.035) * (0.9 + seededNoise(seed + "cr" + i));
+        return { name, ctr, cvr, rev };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Creative" },
+          { key: "ctr", label: "CTR", num: true, fmt: "percent" },
+          { key: "cvr", label: "CVR", num: true, fmt: "percent" },
+          { key: "rev", label: "Attributed rev.", num: true, fmt: "currency" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "paidPlatforms") {
+      const plat = [
+        { name: "Google Ads", spend: sub.platG, share: sub.platG / sub.cSpend },
+        { name: "Meta Ads", spend: sub.platM, share: sub.platM / sub.cSpend },
+        { name: "Other paid", spend: sub.platO, share: sub.platO / sub.cSpend },
+      ];
+      const rows = plat.map((p) => {
+        const rev = sub.cRev * p.share * (1.05 + seededNoise(seed + p.name) * 0.08);
+        const roas = p.spend > 0 ? rev / p.spend : 0;
+        return { name: p.name, spend: p.spend, share: p.share, rev, roas };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Platform" },
+          { key: "spend", label: "Spend", num: true, fmt: "currency" },
+          { key: "share", label: "Share of spend", num: true, fmt: "percent" },
+          { key: "rev", label: "Attributed rev.", num: true, fmt: "currency" },
+          { key: "roas", label: "ROAS", num: true, fmt: "roas" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "seoLandingPages") {
+      const paths = ["/", "/collections/new-arrivals", "/products/flagship-jacket", "/pages/about", "/blogs/style-guide"];
+      const rows = paths.map((path, i) => ({
+        path,
+        sessions: Math.round(sub.seoClicks * (0.24 - i * 0.038)),
+        rev: sub.seoAssistedRev * (0.3 - i * 0.048) * (0.9 + seededNoise(seed + "lp" + i)),
+        pos: 8.5 + i * 2.1 + seededNoise(seed + "po" + i) * 1.5,
+      }));
+      return {
+        columns: [
+          { key: "path", label: "Landing page" },
+          { key: "sessions", label: "Sessions", num: true, fmt: "int" },
+          { key: "rev", label: "Revenue (attrib.)", num: true, fmt: "currency" },
+          { key: "pos", label: "Avg. position", num: true, fmt: "pos" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "emailCampaigns") {
+      const rows = names.emailCampaigns.map((name, i) => {
+        const rev = sub.campRev * (0.26 - i * 0.04) * (0.88 + seededNoise(seed + "er" + i));
+        const open = 0.32 + seededNoise(seed + "eo" + i) * 0.12;
+        const click = 0.028 + seededNoise(seed + "ek" + i) * 0.02;
+        const ord = Math.max(8, Math.round(sub.campOrd * (0.15 - i * 0.022)));
+        return { name, rev, open, click, ord };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Campaign" },
+          { key: "rev", label: "Revenue", num: true, fmt: "currency" },
+          { key: "open", label: "Open rate", num: true, fmt: "percent" },
+          { key: "click", label: "Click rate", num: true, fmt: "percent" },
+          { key: "ord", label: "Orders", num: true, fmt: "int" },
+        ],
+        rows,
+      };
+    }
+
+    if (kind === "b2bCampaigns") {
+      const campNames = ["Enterprise outbound", "Content syndication", "Webinar — Q1", "Partner co-marketing", "ABM pilot"];
+      const rows = campNames.map((name, i) => {
+        const mql = Math.round(sub.mqlsRollup * (0.28 - i * 0.045) * (0.9 + seededNoise(seed + "bc" + i)));
+        const cpl = 120 + i * 22 + seededNoise(seed + "bcp" + i) * 40;
+        const pipe = sub.pipelineRollup * (0.12 - i * 0.018) * (0.9 + seededNoise(seed + "bpp" + i));
+        return { name, mql, cpl, pipe };
+      });
+      return {
+        columns: [
+          { key: "name", label: "Program" },
+          { key: "mql", label: "MQLs", num: true, fmt: "int" },
+          { key: "cpl", label: "CPL", num: true, fmt: "currency" },
+          { key: "pipe", label: "Pipeline", num: true, fmt: "currency" },
+        ],
+        rows,
+      };
+    }
+
+    return { columns: [], rows: [] };
+  }
+
+  function formatTableCell(col, row) {
+    const v = row[col.key];
+    if (v == null) return "—";
+    if (col.fmt === "currency") return formatVal(v, "currency");
+    if (col.fmt === "percent") return formatVal(v, "percent");
+    if (col.fmt === "int") return formatVal(v, "int");
+    if (col.fmt === "roas") return `${v.toFixed(2)}×`;
+    if (col.fmt === "pos") return v.toFixed(1);
+    return String(v);
+  }
+
+  function renderDetailTableHtml(kind, seed, sub) {
+    const spec = buildDetailTable(kind, seed, sub);
+    if (!spec.rows.length) return "";
+    const head = spec.columns.map((c) => `<th${c.num ? ' class="num"' : ""}>${c.label}</th>`).join("");
+    const body = spec.rows.map((row) => {
+      const cells = spec.columns.map((c) => {
+        const cls = c.num ? "num" : "";
+        return `<td${cls ? ` class="${cls}"` : ""}>${formatTableCell(c, row)}</td>`;
+      }).join("");
+      return `<tr>${cells}</tr>`;
+    }).join("");
+    return `<div class="detail-table-wrap"><table class="detail-table" role="grid"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  }
+
+  function renderSubsections(cat, sub, seed) {
+    const cfg = CATEGORY_CONFIG[cat];
+    const wrap = document.getElementById("subsections");
+    wrap.innerHTML = cfg.subsections.map((sec, i) => {
+      let body = "";
+      if (sec.detailTable) {
+        body = renderDetailTableHtml(sec.detailTable, seed, sub);
+      } else if (sec.metrics) {
+        body = `<div class="metric-grid">${sec.metrics.map((m) => `
+          <div class="metric-block">
+            <div class="m-label">${m.icon ? `<i data-lucide="${m.icon}" class="m-icon" aria-hidden="true"></i>` : ""}${m.label}</div>
+            <div class="m-value">${formatSubValue(m.key, sub[m.key])}</div>
+          </div>`).join("")}</div>`;
+      } else if (sec.list) {
+        body = `<ul class="list-metrics">${sec.list.map((l) => `
+          <li><span>${l.label}</span><strong>${l.value}</strong></li>`).join("")}</ul>`;
+      }
+      const desc = sec.description ? `<p class="accordion-desc">${sec.description}</p>` : "";
+      return `
+        <div class="accordion-item${i > 0 ? " collapsed" : ""}" data-acc>
+          <button type="button" class="accordion-header" aria-expanded="${i === 0}">
+            <span>${sec.title}</span>
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">${desc}${body}</div>
+        </div>`;
+    }).join("");
+
+    wrap.querySelectorAll(".accordion-header").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const item = btn.closest(".accordion-item");
+        const collapsed = !item.classList.contains("collapsed");
+        item.classList.toggle("collapsed", collapsed);
+        btn.setAttribute("aria-expanded", String(!collapsed));
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* ── KPI modal chart ──────────────────────────────────────── */
+  let modalChart = null;
+
+  function kpiModalTooltipLabel(ctx, chartKey) {
+    const v = ctx.parsed.y;
+    if (v == null) return "";
+    const lab = ctx.dataset.label;
+    if (["revenue", "aov", "paidRev", "spend", "cpp", "emRev", "rpr", "organicRev", "pipeline", "cpl"].includes(chartKey)) {
+      return `${lab}: ${formatVal(v, "currency")}`;
+    }
+    if (["cvr", "returning", "ctr", "open", "click", "organicCtr", "leadToOpp"].includes(chartKey)) {
+      return `${lab}: ${(v * 100).toFixed(2)}%`;
+    }
+    if (chartKey === "roas") return `${lab}: ${v.toFixed(2)}×`;
+    if (chartKey === "avgPosition") return `${lab}: ${v.toFixed(2)}`;
+    if (chartKey === "semSpend") return `${lab}: ${formatVal(v, "currency")}`;
+    return `${lab}: ${formatVal(v, "int")}`;
+  }
+
+  function openKpiModal(cat, chartKey) {
+    const dash = lastDashboard;
+    if (!dash.start || !dash.cur || !dash.prev) return;
+    const cfg = CATEGORY_CONFIG[cat];
+    const chartMeta = cfg.charts.find((c) => c.key === chartKey);
+    if (!chartMeta) return;
+    const gran = "day";
+    const labels = buildTimeLabels(dash.start, dash.end, gran);
+    const sC = dash.cur[cat].series;
+    const sP = dash.prev[cat].series;
+    const raw = sC[chartKey];
+    const rawCmp = sP[chartKey];
+    if (!raw || !rawCmp) return;
+    const data = aggregateSeries(raw, labels, gran, dash.start, dash.end).slice();
+    const dataCmp = aggregateSeries(rawCmp, labels, gran, dash.start, dash.end).slice();
+    while (dataCmp.length < data.length) dataCmp.push(null);
+
+    document.getElementById("kpiModalTitle").textContent = chartMeta.label;
+    document.getElementById("kpiModalSubtitle").textContent = chartMeta.subtitle || "";
+
+    if (modalChart) { modalChart.destroy(); modalChart = null; }
+
+    const canvas = document.getElementById("kpiModalCanvas");
+    modalChart = new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          { label: "Current",     data,                              borderColor: PRIMARY, backgroundColor: PRIMARY_DIM, fill: true,  tension: 0.25, pointRadius: 0, borderWidth: 2   },
+          { label: "Last period", data: dataCmp.slice(0, data.length), borderColor: COMPARE, borderDash: [4, 4],          fill: false, tension: 0.25, pointRadius: 0, borderWidth: 1.5 },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: true, position: "top", labels: { boxWidth: 12, font: { size: 11 } } },
+          tooltip: { callbacks: { label: (ctx) => kpiModalTooltipLabel(ctx, chartKey) } },
+        },
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    const backdrop = document.getElementById("kpiModalBackdrop");
+    backdrop.classList.add("open");
+    document.body.style.overflow = "hidden";
+    document.getElementById("kpiModalClose").focus();
+  }
+
+  function closeKpiModal() {
+    const backdrop = document.getElementById("kpiModalBackdrop");
+    backdrop.classList.remove("open");
+    document.body.style.overflow = "";
+    if (modalChart) { modalChart.destroy(); modalChart = null; }
+  }
+
+  document.getElementById("kpiModalClose").addEventListener("click", closeKpiModal);
+  document.getElementById("kpiModalBackdrop").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeKpiModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.getElementById("kpiModalBackdrop").classList.contains("open")) {
+      closeKpiModal();
+    }
+  });
+
+
+  function fullRender() {
+    const { start, end } = getDateRange();
+    const cmp = getCompareRange(start, end);
+
+    const cur = {
+      seosem: computeMetricsForCategory("seosem", start, end),
+      shopify: computeMetricsForCategory("shopify", start, end),
+      paid: computeMetricsForCategory("paid", start, end),
+      email: computeMetricsForCategory("email", start, end),
+      b2b: computeMetricsForCategory("b2b", start, end),
+    };
+
+    const prev = {
+      seosem: computeMetricsForCategory("seosem", cmp.start, cmp.end),
+      shopify: computeMetricsForCategory("shopify", cmp.start, cmp.end),
+      paid: computeMetricsForCategory("paid", cmp.start, cmp.end),
+      email: computeMetricsForCategory("email", cmp.start, cmp.end),
+      b2b: computeMetricsForCategory("b2b", cmp.start, cmp.end),
+    };
+
+    lastDashboard = { start, end, cur, prev, cmp };
+
+    const cat = state.category;
+    const dataSeed = cat + formatYMD(start) + formatYMD(end);
+    renderKpis(cat, cur[cat], prev[cat]);
+    renderSubsections(cat, { ...cur[cat].sub }, dataSeed);
+
+    const fb = document.getElementById("dataFallback");
+    fb.classList.remove("visible");
+    fb.textContent = "";
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+
+  document.querySelectorAll(".category-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".category-card").forEach((c) => {
+        c.classList.remove("active");
+        c.setAttribute("aria-pressed", "false");
+      });
+      card.classList.add("active");
+      card.setAttribute("aria-pressed", "true");
+      state.category = card.getAttribute("data-category");
+      fullRender();
+    });
+  });
+
+  document.querySelector(".app-shell").addEventListener("click", (e) => {
+    const tile = e.target.closest(".kpi-tile[data-chart-key]");
+    if (!tile) return;
+    const key = tile.getAttribute("data-chart-key");
+    openKpiModal(state.category, key);
+  });
+
+  fullRender();
+})();
+  </script>
+</body>
+</html>
