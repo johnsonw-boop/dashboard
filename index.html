@@ -353,6 +353,7 @@
       color: var(--secondary);
       letter-spacing: -0.01em;
       line-height: 1.25;
+      white-space: nowrap;
     }
 
     .category-card p {
@@ -926,32 +927,32 @@
         <nav class="category-row" aria-label="Main categories">
           <button type="button" class="category-card active" data-category="shopify" aria-pressed="true">
             <span class="icon" aria-hidden="true">◆</span>
-            <h2>Shopify Analytics</h2>
+            <h2>Shopify</h2>
             <p>Conversion &amp; revenue</p>
           </button>
           <button type="button" class="category-card" data-category="paidGoogle" aria-pressed="false">
             <span class="icon" aria-hidden="true">G</span>
-            <h2>Google Ads</h2>
+            <h2>Google</h2>
             <p>Search, PMax &amp; YouTube</p>
           </button>
           <button type="button" class="category-card" data-category="paidMeta" aria-pressed="false">
             <span class="icon" aria-hidden="true">∞</span>
-            <h2>Meta Ads</h2>
+            <h2>Meta</h2>
             <p>Feed, Reels &amp; attribution</p>
           </button>
           <button type="button" class="category-card" data-category="email" aria-pressed="false">
             <span class="icon" aria-hidden="true">✉</span>
-            <h2>Email Marketing</h2>
+            <h2>Email</h2>
             <p>Campaigns &amp; flows</p>
           </button>
           <button type="button" class="category-card" data-category="b2b" aria-pressed="false">
             <span class="icon" aria-hidden="true">▣</span>
-            <h2>B2B Lead Gen</h2>
+            <h2>B2B</h2>
             <p>Pipeline &amp; lead quality</p>
           </button>
           <button type="button" class="category-card" data-category="seosem" aria-pressed="false">
             <span class="icon" aria-hidden="true">⌕</span>
-            <h2>SEO / SEM</h2>
+            <h2>SEO</h2>
             <p>Organic &amp; paid search</p>
           </button>
         </nav>
@@ -1207,7 +1208,7 @@
 
   const CATEGORY_CONFIG = {
     shopify: {
-      title: "Shopify Analytics",
+      title: "Shopify",
       kpis: [
         { key: "revenue", label: "Revenue", format: "currency", hint: "Net sales in the window.", icon: "dollar-sign" },
         { key: "sessions", label: "Sessions", format: "int", hint: "Storefront sessions in the window.", icon: "users" },
@@ -1256,7 +1257,7 @@
       ],
     },
     seosem: {
-      title: "SEO / SEM",
+      title: "SEO",
       kpis: [
         { key: "organicSessions", label: "Organic sessions", format: "int", hint: "Sessions via organic search.", icon: "search" },
         { key: "organicCtr", label: "Organic CTR", format: "percent", hint: "Clicks ÷ impressions.", icon: "pointer" },
@@ -1280,7 +1281,7 @@
       ],
     },
     paidGoogle: {
-      title: "Google Ads",
+      title: "Google",
       kpis: [
         { key: "spend", label: "Spend", format: "currency", hint: "Google Ads cost in account currency.", icon: "credit-card" },
         { key: "paidRev", label: "Conv. value", format: "currency", hint: "Attributed conversion value.", icon: "trending-up" },
@@ -1309,7 +1310,7 @@
       ],
     },
     paidMeta: {
-      title: "Meta Ads",
+      title: "Meta",
       kpis: [
         { key: "spend", label: "Spend", format: "currency", hint: "Meta Ads account spend.", icon: "credit-card" },
         { key: "paidRev", label: "Purchase value", format: "currency", hint: "Attributed purchase revenue.", icon: "trending-up" },
@@ -1357,7 +1358,7 @@
       ],
     },
     email: {
-      title: "Email Marketing",
+      title: "Email",
       kpis: [
         { key: "emRev", label: "Email revenue", format: "currency", hint: "Email-attributed revenue.", icon: "dollar-sign" },
         { key: "emOrders", label: "Email orders", format: "int", hint: "Orders with email touchpoint.", icon: "shopping-cart" },
@@ -1412,7 +1413,7 @@
       ],
     },
     b2b: {
-      title: "B2B Lead Generation",
+      title: "B2B",
       kpis: [
         { key: "mqls", label: "Qualified leads (MQLs)", format: "int", hint: "MQLs created this period.", icon: "crosshair" },
         { key: "pipeline", label: "Pipeline value", format: "currency", hint: "Open opportunity value.", icon: "trending-up" },
