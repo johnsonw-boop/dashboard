@@ -2043,6 +2043,34 @@
   /* ── KPI modal chart ──────────────────────────────────────── */
   let modalChart = null;
 
+  const sessionsPieSegmentLabels = {
+    id: "sessionsPieSegmentLabels",
+    afterDatasetsDraw(chart) {
+      if (chart.config.type !== "pie") return;
+      const meta = chart.getDatasetMeta(0);
+      if (!meta?.data?.length) return;
+      const labels = chart.data.labels;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = "600 13px system-ui, -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      meta.data.forEach((arc, i) => {
+        const label = labels[i];
+        if (label == null || arc.hidden) return;
+        const p = arc.getProps(["x", "y", "startAngle", "endAngle", "outerRadius"], true);
+        const { x, y, startAngle, endAngle, outerRadius } = p;
+        const mid = (startAngle + endAngle) / 2;
+        const r = outerRadius * 0.58;
+        const tx = x + Math.cos(mid) * r;
+        const ty = y + Math.sin(mid) * r;
+        ctx.fillStyle = i === 0 ? "rgba(255, 255, 255, 0.95)" : "rgba(30, 41, 59, 0.95)";
+        ctx.fillText(String(label), tx, ty);
+      });
+      ctx.restore();
+    },
+  };
+
   function kpiModalTooltipLabel(ctx, chartKey) {
     const v = ctx.parsed.y;
     if (v == null) return "";
@@ -2085,8 +2113,9 @@
       canvas.setAttribute("aria-label", "Sessions breakdown: paid vs non-paid");
       modalChart = new Chart(canvas.getContext("2d"), {
         type: "pie",
+        plugins: [sessionsPieSegmentLabels],
         data: {
-          labels: ["Paid traffic", "Non-paid"],
+          labels: ["Paid", "Non paid"],
           datasets: [
             {
               data: [paid, nonPaid],
